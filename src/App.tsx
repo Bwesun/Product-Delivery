@@ -11,9 +11,6 @@ import {
 } from '@ionic/react';
 import { IonReactRouter } from '@ionic/react-router';
 import { ellipse, home, homeOutline, personOutline, square, triangle } from 'ionicons/icons';
-import Tab1 from './pages/Tab1';
-import Tab2 from './pages/Tab2';
-import Tab3 from './pages/Tab3';
 
 /* Core CSS required for Ionic components to work properly */
 import '@ionic/react/css/core.css';
@@ -48,6 +45,8 @@ import Login from './pages/Login';
 import Register from './components/Register';
 import Home from './pages/Home';
 import Profile from './pages/Profile';
+import { Package } from 'lucide-react';
+import Deliveries from './pages/Deliveries';
 
 setupIonicReact();
 
@@ -61,8 +60,8 @@ const App: React.FC = () => (
           <Route exact path="/home">
             <Home />
           </Route>
-          <Route exact path="/tab2">
-            <Tab2 />
+          <Route exact path="/deliveries">
+            <Deliveries />
           </Route>
           <Route path="/profile">
             <Profile />
@@ -76,7 +75,11 @@ const App: React.FC = () => (
             <IonIcon aria-hidden="true" icon={homeOutline} />
             <IonLabel>Home</IonLabel>
           </IonTabButton>
-          <IonTabButton tab="tab2" href="/tab2">
+          <IonTabButton tab="deliveries" href="/deliveries">
+            <Package size={24} />
+            <IonLabel>Deliveries</IonLabel>
+          </IonTabButton>
+          <IonTabButton tab="deliveries" href="/deliveries">
             <IonIcon aria-hidden="true" icon={ellipse} />
             <IonLabel>Tab 2</IonLabel>
           </IonTabButton>

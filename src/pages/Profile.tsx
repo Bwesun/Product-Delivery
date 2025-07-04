@@ -27,6 +27,7 @@ import {
   timeOutline
 } from "ionicons/icons";
 import React from "react";
+import Header from "../components/Header";
 
 const user = {
   name: "Jane Doe",
@@ -58,6 +59,7 @@ const deliveries = [
 const Profile: React.FC = () => {
   return (
     <IonPage>
+      <Header bg="light" title="Profile" color="light" backButton={true} />
       <IonContent fullscreen className="light-bg">
         <IonGrid className="ion-padding">
           <IonRow className="ion-justify-content-center ion-margin-top">

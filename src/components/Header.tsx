@@ -22,7 +22,7 @@ const Header: React.FC<HeaderProps> = ({bg, color, button, title, backButton}) =
                                     {backButton && <IonButton slot="start" onClick={() => history.goBack()} color={button} fill="clear">
                                         <IonIcon icon={arrowBackOutline} slot="icon-only" color={button}></IonIcon>
                                     </IonButton>}
-                                    <IonButton shape="round" color={"primary"} onClick={() => history.push("/profile")}>
+                                    <IonButton shape="round" color={button} onClick={() => history.push("/profile")}>
                                         <IonIcon icon={person} slot="icon-only" color={color}></IonIcon>
                                     </IonButton>
                                 </div>

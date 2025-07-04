@@ -23,17 +23,18 @@ const Login: React.FC = () => {
         color={"primary"}
       >
         <div
-          className="flex flex-col gap-8 justify-center items-center max-h-[120vh] mx-6"
+          className="flex flex-col gap-8 justify-center items-center min-h-[100%] max-h[120vh] mx-6"
         >
-          <div className="mb-8 text-center">
+          <div className="mb-6 text-center">
             <IonImg src="/assets/images/dispatcher.png" alt="Dispatcher" style={{
-              width: "13rem",
-              height: "auto",
+              width: "8rem",
+              height: "8rem",
               display: "flex",
               justifyContent: "center",
               alignItems: "center",
               marginLeft: "auto",
-              marginRight: "auto"
+              marginRight: "auto",
+              marginBottom: "1rem"
             }} />
             <IonText
             color={"secondary"}

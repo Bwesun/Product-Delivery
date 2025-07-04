@@ -47,10 +47,27 @@ import Home from './pages/Home';
 import Profile from './pages/Profile';
 import { Package } from 'lucide-react';
 import Deliveries from './pages/Deliveries';
+import { StatusBar, Style } from '@capacitor/status-bar';
+import { useEffect } from 'react';
 
 setupIonicReact();
 
-const App: React.FC = () => (
+const App: React.FC = () =>  {
+  useEffect(() => {
+    const setStatusBar = async () => {
+      try {
+        await StatusBar.setBackgroundColor({ color: '#2563eb' }); // Your color here
+        await StatusBar.setOverlaysWebView({ overlay: false }); // Avoid overlapping
+        await StatusBar.setStyle({style: Style.Default})
+      } catch (error) {
+        console.error('Error setting status bar:', error);
+      }
+    };
+
+    setStatusBar();
+  }, []);
+  
+  return ( 
   <IonApp>
     <IonReactRouter>
       <IonTabs>
@@ -79,10 +96,6 @@ const App: React.FC = () => (
             <Package size={24} />
             <IonLabel>Deliveries</IonLabel>
           </IonTabButton>
-          <IonTabButton tab="deliveries" href="/deliveries">
-            <IonIcon aria-hidden="true" icon={ellipse} />
-            <IonLabel>Tab 2</IonLabel>
-          </IonTabButton>
           <IonTabButton tab="profile" href="/profile">
             <IonIcon aria-hidden="true" icon={personOutline} />
             <IonLabel>Profile</IonLabel>
@@ -91,6 +104,6 @@ const App: React.FC = () => (
       </IonTabs>
     </IonReactRouter>
   </IonApp>
-);
+)};
 
 export default App;

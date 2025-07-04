@@ -80,7 +80,7 @@
 
 /* TOOL BAR TRANSPARENT */
 ion-toolbar, ion-header{
-    --background: transparent;
+    --background: light;
 }
 
 /* MINOR THEME CHANGES */
@@ -94,7 +94,7 @@ ion-item, ion-card, ion-list{
 }
 
 ion-input, ion-textarea, ion-select, ion-search-bar{
-	--background: var(--ion-color-light); 
+	background: var(--ion-color-light); 
 	color: var(--ion-color-dark) !important;
 	border-radius: 5rem;
 	/* border-bottom: 1px solid var(--ion-color-tertiary-tint); */

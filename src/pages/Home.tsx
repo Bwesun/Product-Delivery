@@ -9,27 +9,19 @@ import {
   IonRow,
   IonCol,
   IonIcon,
-  IonText
+  IonText,
+  IonHeader,
+  IonTitle,
+  IonToolbar,
+  IonButton
 } from "@ionic/react";
-import { cubeOutline, personOutline, listOutline, logOutOutline } from "ionicons/icons";
+import { cubeOutline, personOutline, listOutline, logOutOutline, person } from "ionicons/icons";
 import { useHistory } from "react-router-dom";
 import React from "react";
+import { c } from "vitest/dist/reporters-5f784f42";
+import Header from "../components/Header";
 
 const cardData = [
-  {
-    title: "Deliveries",
-    icon: cubeOutline,
-    color: "#4846a6",
-    link: "/deliveries",
-    desc: "View and manage your deliveries"
-  },
-  {
-    title: "Profile",
-    icon: personOutline,
-    color: "#ffb900",
-    link: "/profile",
-    desc: "Edit your profile and settings"
-  },
   {
     title: "Orders",
     icon: listOutline,
@@ -38,10 +30,29 @@ const cardData = [
     desc: "Check your order history"
   },
   {
+    title: "Deliveries",
+    icon: cubeOutline,
+    color: "#ffb900",
+    link: "/deliveries",
+    bg: "#4846a6",
+    textColor: "#fff",
+    desc: "View and manage your deliveries"
+  },
+  {
+    title: "Profile",
+    icon: personOutline,
+    color: "#4846a6",
+    link: "/profile",
+    desc: "Edit your profile and settings"
+  },
+  
+  {
     title: "Logout",
     icon: logOutOutline,
     color: "#ffb900",
     link: "/logout",
+    bg: "#4846a6",
+    textColor: "#fff",
     desc: "Sign out of your account"
   }
 ];
@@ -55,12 +66,13 @@ const Home: React.FC = () => {
 
   return (
     <IonPage>
+        <Header title="Home" bg="light" color="light" textColor="dark" backButton={false} button="primary" />
       <IonContent fullscreen className="light-bg">
         <IonGrid className="ion-padding">
           <IonRow>
-            <IonCol size="12" className="ion-text-center" style={{ marginBottom: 24 }}>
-              <IonText style={{ fontSize: "2rem", fontWeight: 800, color: "#4846a6" }}>
-                Welcome to DeliveryX
+            <IonCol size="12" className="" style={{ marginBottom: 24 }}>
+              <IonText style={{ fontSize: "1.2rem", fontWeight: 600, color: "#4846a6" }}>
+                <small>Welcome,</small> Matur Innocent 
               </IonText>
             </IonCol>
           </IonRow>
@@ -68,12 +80,13 @@ const Home: React.FC = () => {
             {cardData.map((card, idx) => (
               <IonCol size="12" className="" sizeMd="6" key={idx}>
                 <IonCard
+                  className="ion-padding"
                   button
                   onClick={() => handleCardClick(card.link)}
                   style={{
                     borderRadius: 16,
                     boxShadow: "0 4px 16px rgba(72,70,166,0.08)",
-                    background: "#fff",
+                    background: `${card.bg || "var(--ion-color-secondary)"}`,
                     marginBottom: 24
                   }}
                 >
@@ -93,7 +106,7 @@ const Home: React.FC = () => {
                       {card.title}
                     </IonCardTitle>
                   </IonCardHeader>
-                  <IonCardContent className="ion-text-center" style={{ color: "#4846a6" }}>
+                  <IonCardContent className="ion-text-center" style={{ color: card.textColor || "#4846a6", }}>
                     {card.desc}
                   </IonCardContent>
                 </IonCard>

@@ -58,7 +58,7 @@ const deliveries = [
 const Profile: React.FC = () => {
   return (
     <IonPage>
-      <IonContent fullscreen className="primary-bg">
+      <IonContent fullscreen className="light-bg">
         <IonGrid className="ion-padding">
           <IonRow className="ion-justify-content-center ion-margin-top">
             <IonCol size="12" className="ion-text-center">
@@ -75,7 +75,7 @@ const Profile: React.FC = () => {
                 {user.name}
               </IonText>
               <IonButton
-                color="secondary"
+                color="primary"
                 size="small"
                 style={{ marginTop: 12, borderRadius: 20, fontWeight: 600 }}
                 fill="outline"
@@ -87,40 +87,38 @@ const Profile: React.FC = () => {
           </IonRow>
           <IonRow className="ion-justify-content-center">
             <IonCol size="12" sizeMd="8" sizeLg="6">
-              <IonList lines="none" style={{ marginTop: 32, background: "#fff", borderRadius: 16, boxShadow: "0 2px 12px rgba(72,70,166,0.06)" }}>
-                <IonItem>
-                  <IonIcon icon={mailOutline} slot="start" color="primary" style={{ fontSize: 22, color: "#4846a6" }} />
+                <IonItem lines='none' style={{ marginTop: 24, borderRadius: 16, boxShadow: "0 2px 12px rgba(72,70,166,0.06)" }}>
+                  <IonIcon icon={mailOutline} slot="start" color="primary" style={{ fontSize: 22}} />
                   <IonLabel>
                     <IonText color="medium" style={{ fontSize: 13 }}>Email</IonText>
-                    <div style={{ fontWeight: 600, color: "#4846a6" }}>{user.email}</div>
+                    <div style={{ fontWeight: 600}}>{user.email}</div>
                   </IonLabel>
                 </IonItem>
-                <IonItem>
-                  <IonIcon icon={callOutline} slot="start" color="primary" style={{ fontSize: 22, color: "#4846a6" }} />
+                <IonItem lines='none' style={{ marginTop: 24, borderRadius: 16, boxShadow: "0 2px 12px rgba(72,70,166,0.06)" }}>
+                  <IonIcon icon={callOutline} slot="start" color="primary" style={{ fontSize: 22 }} />
                   <IonLabel>
                     <IonText color="medium" style={{ fontSize: 13 }}>Phone</IonText>
-                    <div style={{ fontWeight: 600, color: "#4846a6" }}>{user.phone}</div>
+                    <div style={{ fontWeight: 600 }}>{user.phone}</div>
                   </IonLabel>
                 </IonItem>
-                <IonItem>
-                  <IonIcon icon={locationOutline} slot="start" color="primary" style={{ fontSize: 22, color: "#4846a6" }} />
+                <IonItem lines='none' style={{ marginTop: 24, borderRadius: 16, boxShadow: "0 2px 12px rgba(72,70,166,0.06)" }}>
+                  <IonIcon icon={locationOutline} slot="start" color="primary" style={{ fontSize: 22 }} />
                   <IonLabel>
                     <IonText color="medium" style={{ fontSize: 13 }}>Address</IonText>
-                    <div style={{ fontWeight: 600, color: "#4846a6" }}>{user.address}</div>
+                    <div style={{ fontWeight: 600 }}>{user.address}</div>
                   </IonLabel>
                 </IonItem>
-              </IonList>
 
               {/* Delivery Features */}
               <IonCard style={{ marginTop: 32, borderRadius: 16, boxShadow: "0 2px 12px rgba(72,70,166,0.06)" }}>
                 <IonCardHeader>
-                  <IonCardTitle style={{ color: "#4846a6", fontWeight: 700, fontSize: "1.2rem" }}>
+                  <IonCardTitle className="ion-padding" color={"primary"} style={{ fontWeight: 700, fontSize: "1.2rem" }}>
                     My Deliveries
                   </IonCardTitle>
                 </IonCardHeader>
                 <IonCardContent>
                   {deliveries.map((delivery) => (
-                    <IonItem key={delivery.id} lines="none">
+                    <IonItem lines='none' style={{ marginTop: 24, borderRadius: 16, boxShadow: "0 2px 12px rgba(72,70,166,0.06)" }} key={delivery.id}>
                       <IonIcon
                         icon={delivery.icon}
                         slot="start"

@@ -16,9 +16,11 @@ import {
   IonSelect,
   IonSelectOption,
   IonText,
-  IonSearchbar
+  IonSearchbar,
+  IonMenu
 } from "@ionic/react";
 import { cubeOutline, addCircleOutline, closeOutline, timeOutline, checkmarkCircleOutline, ellipsisHorizontalCircleOutline } from "ionicons/icons";
+import Header from "../components/Header";
 
 const initialDeliveries = [
   {
@@ -67,11 +69,13 @@ const Deliveries: React.FC = () => {
   const [searchText, setSearchText] = useState("");
   const [filterStatus, setFilterStatus] = useState("All");
 
-  const handleInput = (e: CustomEvent) => {
-    const { name, value } = e.target;
-    setForm((prev) => ({ ...prev, [name]: value }));
-    setFormError("");
-  };
+  const handleInput = (e: any) => {
+  const target = e.target as HTMLInputElement & { name?: string };
+  const name = target.name;
+  const value = e.detail?.value ?? target.value;
+  setForm((prev) => ({ ...prev, [name]: value }));
+  setFormError("");
+};
 
   const handleAddDelivery = (e: React.FormEvent) => {
     e.preventDefault();
@@ -104,10 +108,8 @@ const Deliveries: React.FC = () => {
 
   return (
     <IonPage>
+        <Header title="Deliveries" bg="light" color="light" button='primary' textColor="dark" backButton={true} />
       <IonContent fullscreen className="light-bg">
-        <IonText className="text-2xl ion-padding font-semibold" color={"dark"}>
-          Deliveries 
-          </IonText>
         <div className="ion-padding">
           <IonButton
             expand="block"
@@ -189,10 +191,9 @@ const Deliveries: React.FC = () => {
         </div>
 
         <IonModal isOpen={showModal} onDidDismiss={() => setShowModal(false)}>
-          <form onSubmit={handleAddDelivery}>
             <IonHeader>
-              <IonToolbar style={{ background: "#4846a6" }}>
-                <IonTitle style={{ color: "#ffb900" }}>New Delivery Request</IonTitle>
+              <IonToolbar color={"primary"}>
+                <IonTitle className="ion-padding" color={"secondary"}>New Delivery Request</IonTitle>
                 <IonButton
                   slot="end"
                   fill="clear"
@@ -203,7 +204,8 @@ const Deliveries: React.FC = () => {
                 </IonButton>
               </IonToolbar>
             </IonHeader>
-            <IonContent style={{ background: "#fff1cd" }}>
+            <IonContent color={"light"}>
+          <form onSubmit={handleAddDelivery}>
               <div className="ion-padding">
                 <IonInput
                   label="Product Name"
@@ -213,7 +215,7 @@ const Deliveries: React.FC = () => {
                   value={form.product}
                   onIonInput={handleInput}
                   required
-                  style={{ marginBottom: 16, background: "#fff", borderRadius: 8 }}
+                  color={'primary'}
                 />
                 <IonSelect
                   label="Status"
@@ -256,8 +258,8 @@ const Deliveries: React.FC = () => {
                   Submit Request
                 </IonButton>
               </div>
-            </IonContent>
           </form>
+            </IonContent>
         </IonModal>
       </IonContent>
     </IonPage>

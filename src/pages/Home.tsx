@@ -25,8 +25,10 @@ const cardData = [
   {
     title: "Orders",
     icon: listOutline,
-    color: "#4846a6",
+    color: "#ffb900",
+    bg: "#4846a6",
     link: "/orders",
+    textColor: "#fff",
     desc: "Check your order history"
   },
   {

@@ -23,7 +23,7 @@ const Login: React.FC = () => {
         color={"primary"}
       >
         <div
-          className="flex flex-col gap-8 justify-center items-center h-[100%] mx-6"
+          className="flex flex-col gap-8 justify-center items-center max-h-[120vh] mx-6"
         >
           <div className="mb-8 text-center">
             <IonImg src="/assets/images/dispatcher.png" alt="Dispatcher" style={{

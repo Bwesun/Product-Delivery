@@ -146,6 +146,12 @@ const Deliveries: React.FC = () => {
     setFormError("");
   };
 
+  const handleUpdateDelivery = () => {
+    // setSelectedOrder();
+    console.log('Done')
+  } 
+
+
   // Filter and search logic
   const filteredDeliveries = deliveries.filter((delivery) => {
     const matchesStatus = filterStatus === "All" || delivery.status === filterStatus;
@@ -160,21 +166,6 @@ const Deliveries: React.FC = () => {
         <Header title="Deliveries" bg="light" color="light" button='primary' textColor="dark" backButton={true} />
       <IonContent fullscreen className="light-bg">
         <div className="ion-padding">
-          <IonButton
-            expand="block"
-            color="secondary"
-            style={{
-              borderRadius: 12,
-              fontWeight: 700,
-              background: "#ffb900",
-              color: "#4846a6",
-              marginBottom: 24
-            }}
-            onClick={() => setShowModal(true)}
-          >
-            <IonIcon icon={addCircleOutline} slot="start" />
-            Add Delivery Request
-          </IonButton>
 
           {/* Search and Filter */}
           <div style={{ display: "flex", gap: 12, marginBottom: 16, flexWrap: "wrap" }}>
@@ -249,117 +240,6 @@ const Deliveries: React.FC = () => {
               </IonItem>
             ))}
         </div>
-        
-        {/* ADD DELIVERY REQUEST MODAL */}
-        <IonModal isOpen={showModal} onDidDismiss={() => setShowModal(false)}>
-            <IonHeader>
-              <IonToolbar color={"primary"}>
-                <IonTitle className="ion-padding" color={"secondary"}>New Order Request</IonTitle>
-                <IonButton
-                  slot="end"
-                  fill="clear"
-                  color="light"
-                  onClick={() => setShowModal(false)}
-                >
-                  <IonIcon icon={closeOutline} />
-                </IonButton>
-              </IonToolbar>
-            </IonHeader>
-            <IonContent color={"light"}>
-          <form onSubmit={handleAddDelivery}>
-              <div className="ion-padding">
-                <IonInput
-                  label="Product Name"
-                  labelPlacement="floating"
-                  placeholder="Enter product name"
-                  name="product"
-                  value={form.product}
-                  onIonInput={handleInput}
-                  required
-                  color={'primary'}
-                />
-                <IonSelect
-                  label="Status"
-                  labelPlacement="floating"
-                  name="status"
-                  value={form.status}
-                  onIonChange={handleInput}
-                  style={{ marginBottom: 16, background: "#fff", borderRadius: 8 }}
-                >
-                  <IonSelectOption value="Pending">Pending</IonSelectOption>
-                  <IonSelectOption value="In Transit">In Transit</IonSelectOption>
-                  <IonSelectOption value="Delivered">Delivered</IonSelectOption>
-                </IonSelect>
-                <IonTextarea
-                  label="Details"
-                  labelPlacement="floating"
-                  placeholder="Additional details (optional)"
-                  name="details"
-                  value={form.details}
-                  onIonInput={handleInput}
-                  style={{ marginBottom: 16, background: "#fff", borderRadius: 8 }}
-                />
-                <IonInput
-                  label="Pickup Address"
-                  labelPlacement="floating"
-                  placeholder="Enter pickup address"
-                  name="pickupAddress"
-                  value={form.pickupAddress}
-                  onIonInput={handleInput}
-                  style={{ marginBottom: 16, background: "#fff", borderRadius: 8 }}
-                />
-                <IonInput
-                  label="Pickup Phone Number"
-                  labelPlacement="floating"
-                  placeholder="Enter pickup phone number"
-                  name="pickupPhone"
-                  value={form.pickupPhone}
-                  onIonInput={handleInput}
-                  style={{ marginBottom: 16, background: "#fff", borderRadius: 8 }}
-                  type="tel"
-                />
-                <IonInput
-                  label="Delivery Address"
-                  labelPlacement="floating"
-                  placeholder="Enter delivery address"
-                  name="deliveryAddress"
-                  value={form.deliveryAddress}
-                  onIonInput={handleInput}
-                  style={{ marginBottom: 16, background: "#fff", borderRadius: 8 }}
-                />
-                <IonInput
-                  label="Delivery Phone Number"
-                  labelPlacement="floating"
-                  placeholder="Enter delivery phone number"
-                  name="deliveryPhone"
-                  value={form.deliveryPhone}
-                  onIonInput={handleInput}
-                  style={{ marginBottom: 16, background: "#fff", borderRadius: 8 }}
-                  type="tel"
-                />
-                {formError && (
-                  <IonText color="danger" style={{ fontSize: 14 }}>
-                    {formError}
-                  </IonText>
-                )}
-                <IonButton
-                  expand="block"
-                  type="submit"
-                  color="secondary"
-                  style={{
-                    borderRadius: 12,
-                    fontWeight: 700,
-                    background: "#ffb900",
-                    color: "#4846a6",
-                    marginTop: 12
-                  }}
-                >
-                  Submit Request
-                </IonButton>
-              </div>
-          </form>
-            </IonContent>
-        </IonModal>
         
         {/* ORDER DETAILS MODAL */}
         <IonModal isOpen={showDetailsModal} onDidDismiss={() => setShowDetailsModal(false)}>
@@ -479,6 +359,45 @@ const Deliveries: React.FC = () => {
                             <strong>Delivery Phone:</strong> {selectedOrder.deliveryPhone}
                         </span>
                         </div>
+                    </div>
+                    <div className="mt-8">
+                        <form>
+                      <IonSelect
+                                        label="Update Status"
+                                        labelPlacement="floating"
+                                        name="status"
+                                        value={form.status}
+                                        onIonChange={handleInput}
+                                        style={{ marginBottom: 16, background: "#fff", borderRadius: 8 }}
+                                      >
+                                        <IonSelectOption value="Pending">Pending</IonSelectOption>
+                                        <IonSelectOption value="In Transit">In Transit</IonSelectOption>
+                                        <IonSelectOption value="Delivered">Delivered</IonSelectOption>
+                                      </IonSelect>
+                                      <IonTextarea className="border-2 border-gray-100 rounded-md p-2 mb-4"
+                                        label="Additional Details (Optional)"
+                                        labelPlacement="floating"
+                                        placeholder="Additional details (optional)"
+                                        name="details"
+                                        value={form.details}
+                                        onIonInput={handleInput}
+                                        style={{ marginBottom: 16, background: "#fff", borderRadius: 8 }}
+                                      />
+                                      <IonButton
+            expand="block"
+            color="secondary"
+            style={{
+              borderRadius: 12,
+              fontWeight: 700,
+              background: "#ffb900",
+              color: "#4846a6",
+              marginBottom: 24
+            }}
+            onClick={handleUpdateDelivery}
+          >
+            Update Status
+          </IonButton>
+                                      </form>
                     </div>
                     </>
                 )}

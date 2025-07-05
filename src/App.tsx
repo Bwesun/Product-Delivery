@@ -45,10 +45,11 @@ import Login from './pages/Login';
 import Register from './components/Register';
 import Home from './pages/Home';
 import Profile from './pages/Profile';
-import { Package } from 'lucide-react';
+import { Logs, Package } from 'lucide-react';
 import Deliveries from './pages/Deliveries';
 import { StatusBar, Style } from '@capacitor/status-bar';
 import { useEffect } from 'react';
+import Orders from './pages/Orders';
 
 setupIonicReact();
 
@@ -80,6 +81,9 @@ const App: React.FC = () =>  {
           <Route exact path="/deliveries">
             <Deliveries />
           </Route>
+          <Route exact path="/orders">
+            <Orders />
+          </Route>
           <Route path="/profile">
             <Profile />
           </Route>
@@ -95,6 +99,10 @@ const App: React.FC = () =>  {
           <IonTabButton tab="deliveries" href="/deliveries">
             <Package size={24} />
             <IonLabel>Deliveries</IonLabel>
+          </IonTabButton>
+          <IonTabButton tab="orders" href="/orders">
+            <Logs size={24} />
+            <IonLabel>Orders</IonLabel>
           </IonTabButton>
           <IonTabButton tab="profile" href="/profile">
             <IonIcon aria-hidden="true" icon={personOutline} />

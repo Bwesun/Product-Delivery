@@ -73,7 +73,7 @@ const Profile: React.FC = () => {
               }}>
                 <img src={user.avatar} alt="Profile" />
               </IonAvatar>
-              <IonText color={"light"} style={{ fontSize: "1.7rem", fontWeight: 700, marginTop: 16, display: "block" }}>
+              <IonText color={"dark"} style={{ fontSize: "1.7rem", fontWeight: 700, marginTop: 16, display: "block" }}>
                 {user.name}
               </IonText>
               <IonButton

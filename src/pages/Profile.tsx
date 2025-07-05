@@ -115,7 +115,7 @@ const Profile: React.FC = () => {
               <IonCard style={{ marginTop: 32, borderRadius: 16, boxShadow: "0 2px 12px rgba(72,70,166,0.06)" }}>
                 <IonCardHeader>
                   <IonCardTitle className="ion-padding" color={"primary"} style={{ fontWeight: 700, fontSize: "1.2rem" }}>
-                    My Deliveries
+                    My Orders
                   </IonCardTitle>
                 </IonCardHeader>
                 <IonCardContent>

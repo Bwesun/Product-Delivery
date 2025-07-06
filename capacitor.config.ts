@@ -2,7 +2,7 @@ import type { CapacitorConfig } from '@capacitor/cli';
 
 const config: CapacitorConfig = {
   appId: 'ionic.delivery',
-  appName: 'delivery',
+  appName: 'DeliveryX',
   webDir: 'dist'
 };
 

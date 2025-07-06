@@ -1,16 +1,14 @@
-const express = require("express");
-const Order = require("../models/Order");
-const Delivery = require("../models/Delivery");
-const User = require("../models/User");
-const { auth, authorize } = require("../middleware/auth");
+import express from "express";
+import Order from "../models/Order.js";
+import Delivery from "../models/Delivery.js";
 
 const router = express.Router();
 
 // Get user's orders
-router.get("/", auth, async (req, res) => {
+router.get("/:uid", async (req, res) => {
   try {
-    const { status, page = 1, limit = 10, search } = req.query;
-    const query = { customer: req.user._id };
+    const { status, search } = req.query;
+    const query = { customerId: req.params.uid };
 
     if (status && status !== "All") {
       query.status = status;
@@ -24,28 +22,15 @@ router.get("/", auth, async (req, res) => {
       ];
     }
 
-    const orders = await Order.find(query)
-      .populate("assignedDelivery")
-      .sort({ createdAt: -1 })
-      .limit(limit * 1)
-      .skip((page - 1) * limit);
-
-    const total = await Order.countDocuments(query);
-
-    res.json({
-      orders,
-      totalPages: Math.ceil(total / limit),
-      currentPage: page,
-      total,
-    });
+    const orders = await Order.find(query).sort({ createdAt: -1 });
+    res.json({ success: true, orders });
   } catch (error) {
-    console.error("Get orders error:", error);
-    res.status(500).json({ message: "Server error" });
+    res.status(500).json({ error: error.message });
   }
 });
 
 // Create new order
-router.post("/", auth, authorize("user", "admin"), async (req, res) => {
+router.post("/", async (req, res) => {
   try {
     const {
       product,
@@ -54,300 +39,132 @@ router.post("/", auth, authorize("user", "admin"), async (req, res) => {
       deliveryAddress,
       deliveryPhone,
       details,
+      customerId,
       priority = "Medium",
-      requestedDeliveryDate,
-      specialInstructions,
     } = req.body;
 
+    // Create order
     const order = new Order({
-      customer: req.user._id,
       product,
       pickupAddress,
       pickupPhone,
       deliveryAddress,
       deliveryPhone,
       details,
+      customerId,
       priority,
-      requestedDeliveryDate,
-      specialInstructions,
     });
 
     await order.save();
 
-    // Automatically create a delivery entry
+    // Auto-create delivery
     const delivery = new Delivery({
-      orderId: order._id,
-      customer: req.user._id,
-      dispatcher: null, // Will be assigned later by admin
       product,
       pickupAddress,
       pickupPhone,
       deliveryAddress,
       deliveryPhone,
       details,
+      customerId,
       priority,
+      date: new Date().toISOString().split("T")[0],
     });
 
     await delivery.save();
 
     // Link delivery to order
-    order.assignedDelivery = delivery._id;
+    order.deliveryId = delivery._id;
     await order.save();
 
-    // Emit real-time notification to admins
-    req.io.to("admin-room").emit("new-order", {
-      orderId: order._id,
-      customerName: req.user.name,
-      product,
-      priority,
-    });
-
-    res.status(201).json({
-      message: "Order created successfully",
-      order,
-      delivery,
-    });
+    res.json({ success: true, order, delivery });
   } catch (error) {
-    console.error("Create order error:", error);
-    res.status(500).json({ message: "Server error" });
+    res.status(500).json({ error: error.message });
   }
 });
 
-// Get order by ID
-router.get("/:id", auth, async (req, res) => {
-  try {
-    const order = await Order.findById(req.params.id)
-      .populate("customer", "name email phone")
-      .populate("assignedDelivery");
-
-    if (!order) {
-      return res.status(404).json({ message: "Order not found" });
-    }
-
-    // Users can only see their own orders (unless admin)
-    if (
-      req.user.role !== "admin" &&
-      order.customer._id.toString() !== req.user._id.toString()
-    ) {
-      return res.status(403).json({ message: "Access denied" });
-    }
-
-    res.json(order);
-  } catch (error) {
-    console.error("Get order error:", error);
-    res.status(500).json({ message: "Server error" });
-  }
-});
-
-// Update order (before it's assigned to delivery)
-router.put("/:id", auth, async (req, res) => {
+// Update order
+router.put("/:id", async (req, res) => {
   try {
     const order = await Order.findById(req.params.id);
     if (!order) {
-      return res.status(404).json({ message: "Order not found" });
+      return res.status(404).json({ error: "Order not found" });
     }
 
-    // Users can only edit their own orders (unless admin)
-    if (
-      req.user.role !== "admin" &&
-      order.customer.toString() !== req.user._id.toString()
-    ) {
-      return res.status(403).json({ message: "Access denied" });
-    }
-
-    // Can't edit if already in progress
+    // Can't edit if already in transit or delivered
     if (["In Transit", "Delivered"].includes(order.status)) {
-      return res
-        .status(400)
-        .json({ message: "Cannot edit order that is already in progress" });
+      return res.status(400).json({ error: "Cannot edit order in progress" });
     }
 
-    const allowedUpdates = [
-      "product",
-      "pickupAddress",
-      "pickupPhone",
-      "deliveryAddress",
-      "deliveryPhone",
-      "details",
-      "specialInstructions",
-      "requestedDeliveryDate",
-    ];
-
-    allowedUpdates.forEach((field) => {
-      if (req.body[field] !== undefined) {
-        order[field] = req.body[field];
-      }
-    });
-
+    Object.assign(order, req.body);
     await order.save();
 
-    // Also update the associated delivery
-    if (order.assignedDelivery) {
-      const delivery = await Delivery.findById(order.assignedDelivery);
+    // Also update linked delivery
+    if (order.deliveryId) {
+      const delivery = await Delivery.findById(order.deliveryId);
       if (delivery) {
-        allowedUpdates.forEach((field) => {
-          if (req.body[field] !== undefined && delivery[field] !== undefined) {
-            delivery[field] = req.body[field];
-          }
-        });
+        Object.assign(delivery, req.body);
         await delivery.save();
       }
     }
 
-    res.json({
-      message: "Order updated successfully",
-      order,
-    });
+    res.json({ success: true, order });
   } catch (error) {
-    console.error("Update order error:", error);
-    res.status(500).json({ message: "Server error" });
+    res.status(500).json({ error: error.message });
   }
 });
 
 // Cancel order
-router.delete("/:id", auth, async (req, res) => {
+router.delete("/:id", async (req, res) => {
   try {
     const order = await Order.findById(req.params.id);
     if (!order) {
-      return res.status(404).json({ message: "Order not found" });
+      return res.status(404).json({ error: "Order not found" });
     }
 
-    // Users can only cancel their own orders (unless admin)
-    if (
-      req.user.role !== "admin" &&
-      order.customer.toString() !== req.user._id.toString()
-    ) {
-      return res.status(403).json({ message: "Access denied" });
-    }
-
-    // Can't cancel if already delivered
     if (order.status === "Delivered") {
-      return res.status(400).json({ message: "Cannot cancel delivered order" });
+      return res.status(400).json({ error: "Cannot cancel delivered order" });
     }
 
     order.status = "Cancelled";
     await order.save();
 
-    // Also update the associated delivery
-    if (order.assignedDelivery) {
-      const delivery = await Delivery.findById(order.assignedDelivery);
+    // Also cancel linked delivery
+    if (order.deliveryId) {
+      const delivery = await Delivery.findById(order.deliveryId);
       if (delivery) {
         delivery.status = "Cancelled";
-        delivery.statusHistory.push({
-          status: "Cancelled",
-          notes: "Order cancelled by customer",
-          updatedBy: req.user._id,
-          timestamp: new Date(),
-        });
         await delivery.save();
       }
     }
 
-    // Emit real-time notification
-    req.io.to("admin-room").emit("order-cancelled", {
-      orderId: order._id,
-      customerName: req.user.name,
-    });
-
-    res.json({
-      message: "Order cancelled successfully",
-      order,
-    });
+    res.json({ success: true, message: "Order cancelled" });
   } catch (error) {
-    console.error("Cancel order error:", error);
-    res.status(500).json({ message: "Server error" });
+    res.status(500).json({ error: error.message });
   }
 });
 
-// Get order tracking information
-router.get("/:id/tracking", auth, async (req, res) => {
+// Get order tracking
+router.get("/tracking/:id", async (req, res) => {
   try {
-    const order = await Order.findById(req.params.id).populate(
-      "assignedDelivery",
-    );
-
+    const order = await Order.findById(req.params.id);
     if (!order) {
-      return res.status(404).json({ message: "Order not found" });
+      return res.status(404).json({ error: "Order not found" });
     }
 
-    // Users can only track their own orders (unless admin)
-    if (
-      req.user.role !== "admin" &&
-      order.customer.toString() !== req.user._id.toString()
-    ) {
-      return res.status(403).json({ message: "Access denied" });
+    let delivery = null;
+    if (order.deliveryId) {
+      delivery = await Delivery.findById(order.deliveryId);
     }
-
-    if (!order.assignedDelivery) {
-      return res.json({
-        trackingNumber: null,
-        status: order.status,
-        statusHistory: [],
-        estimatedDeliveryTime: null,
-      });
-    }
-
-    const delivery = await Delivery.findById(order.assignedDelivery).populate(
-      "dispatcher",
-      "name phone",
-    );
 
     res.json({
-      trackingNumber: delivery.trackingNumber,
-      status: delivery.status,
-      statusHistory: delivery.statusHistory,
-      estimatedDeliveryTime: delivery.estimatedDeliveryTime,
-      dispatcher: delivery.dispatcher,
+      success: true,
+      order,
+      delivery,
+      trackingNumber: delivery?.trackingNumber,
     });
   } catch (error) {
-    console.error("Get tracking error:", error);
-    res.status(500).json({ message: "Server error" });
+    res.status(500).json({ error: error.message });
   }
 });
 
-// Get user's order statistics
-router.get(
-  "/stats/dashboard",
-  auth,
-  authorize("user", "admin"),
-  async (req, res) => {
-    try {
-      const query = { customer: req.user._id };
-
-      const stats = await Order.aggregate([
-        { $match: query },
-        {
-          $group: {
-            _id: "$status",
-            count: { $sum: 1 },
-          },
-        },
-      ]);
-
-      const totalOrders = await Order.countDocuments(query);
-      const thisMonthOrders = await Order.countDocuments({
-        ...query,
-        createdAt: {
-          $gte: new Date(new Date().getFullYear(), new Date().getMonth(), 1),
-          $lt: new Date(new Date().getFullYear(), new Date().getMonth() + 1, 1),
-        },
-      });
-
-      const recentOrders = await Order.find(query)
-        .sort({ createdAt: -1 })
-        .limit(5);
-
-      res.json({
-        stats,
-        totalOrders,
-        thisMonthOrders,
-        recentOrders,
-      });
-    } catch (error) {
-      console.error("Get order stats error:", error);
-      res.status(500).json({ message: "Server error" });
-    }
-  },
-);
-
-module.exports = router;
+export default router;

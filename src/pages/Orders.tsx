@@ -205,7 +205,7 @@ const Orders: React.FC = () => {
         color="light"
         button="primary"
         textColor="dark"
-        backButton={false}
+        backButton={true}
       />
       <IonContent fullscreen className="light-bg">
         <IonRefresher slot="fixed" onIonRefresh={handleRefresh}>

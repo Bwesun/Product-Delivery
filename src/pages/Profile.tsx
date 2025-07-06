@@ -146,7 +146,7 @@ const Profile: React.FC = () => {
 
   return (
     <IonPage>
-      <Header bg="light" title="Profile" color="light" backButton={false} />
+      <Header bg="light" title="Profile" color="light" backButton={true} />
       <IonContent fullscreen className="light-bg">
         <IonGrid className="ion-padding">
           <IonRow className="ion-justify-content-center ion-margin-top">

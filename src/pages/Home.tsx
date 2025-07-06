@@ -17,6 +17,7 @@ import {
   IonList,
   IonRefresher,
   IonRefresherContent,
+  IonSpinner,
 } from "@ionic/react";
 import {
   cubeOutline,
@@ -218,13 +219,13 @@ const Home: React.FC = () => {
           title: "Create Order",
           icon: addCircleOutline,
           action: () => history.push("/orders"),
-          color: "#4846a6",
+          color: "primary",
         },
         {
           title: "Track Orders",
           icon: cubeOutline,
           action: () => history.push("/orders"),
-          color: "#3880ff",
+          color: "secondary",
         },
       ];
     } else if (user?.role === "dispatcher") {
@@ -233,13 +234,13 @@ const Home: React.FC = () => {
           title: "View Deliveries",
           icon: cubeOutline,
           action: () => history.push("/deliveries"),
-          color: "#4846a6",
+          color: "primary",
         },
         {
           title: "Update Status",
           icon: checkmarkCircleOutline,
           action: () => history.push("/deliveries"),
-          color: "#2dd55b",
+          color: "secondary",
         },
       ];
     } else if (user?.role === "admin") {
@@ -248,19 +249,19 @@ const Home: React.FC = () => {
           title: "Admin Dashboard",
           icon: statsChartOutline,
           action: () => history.push("/admin"),
-          color: "#4846a6",
+          color: "primary",
         },
         {
           title: "Manage Users",
           icon: peopleOutline,
           action: () => history.push("/admin"),
-          color: "#3880ff",
+          color: "secondary",
         },
         {
           title: "View Orders",
           icon: cubeOutline,
           action: () => history.push("/orders"),
-          color: "#ffc409",
+          color: "success",
         },
       ];
     }
@@ -270,7 +271,8 @@ const Home: React.FC = () => {
   if (!user) {
     return (
       <IonPage>
-        <IonContent>Loading...</IonContent>
+        <IonContent>
+          <IonSpinner name="crescent" color={"primary"} /> Loading...</IonContent>
       </IonPage>
     );
   }
@@ -286,8 +288,8 @@ const Home: React.FC = () => {
         backButton={false}
       />
       <IonContent fullscreen className="light-bg">
-        <IonRefresher slot="fixed" onIonRefresh={handleRefresh}>
-          <IonRefresherContent></IonRefresherContent>
+        <IonRefresher color="primary" slot="fixed" onIonRefresh={handleRefresh}>
+          <IonRefresherContent color="light"></IonRefresherContent>
         </IonRefresher>
 
         <div className="ion-padding">
@@ -315,13 +317,13 @@ const Home: React.FC = () => {
           <IonGrid style={{ padding: 0 }}>
             <IonRow>
               <IonCol size="6">
-                <IonCard style={{ margin: 0, textAlign: "center" }}>
+                <IonCard style={{ margin: 0, textAlign: "center", background: 'var(--ion-color-primary-tint)' }}>
                   <IonCardContent style={{ padding: 16 }}>
                     <IonIcon
                       icon={cubeOutline}
                       style={{
                         fontSize: 32,
-                        color: "#4846a6",
+                        color: "var(--ion-color-light)",
                         marginBottom: 8,
                       }}
                     />
@@ -329,12 +331,12 @@ const Home: React.FC = () => {
                       style={{
                         fontSize: 24,
                         fontWeight: "bold",
-                        color: "#4846a6",
+                        color: "var(--ion-color-light)",
                       }}
                     >
                       {stats.total}
                     </div>
-                    <div style={{ fontSize: 14, color: "#666" }}>
+                    <div style={{ fontSize: 14, color: "var(--ion-color-light)" }}>
                       Total{" "}
                       {user.role === "user"
                         ? "Orders"
@@ -346,13 +348,13 @@ const Home: React.FC = () => {
                 </IonCard>
               </IonCol>
               <IonCol size="6">
-                <IonCard style={{ margin: 0, textAlign: "center" }}>
+                <IonCard style={{ margin: 0, textAlign: "center", background: 'var(--ion-color-secondary)' }}>
                   <IonCardContent style={{ padding: 16 }}>
                     <IonIcon
                       icon={timeOutline}
                       style={{
                         fontSize: 32,
-                        color: "#ffc409",
+                        color: "var(--ion-color-dark)",
                         marginBottom: 8,
                       }}
                     />
@@ -360,7 +362,7 @@ const Home: React.FC = () => {
                       style={{
                         fontSize: 24,
                         fontWeight: "bold",
-                        color: "#ffc409",
+                        color: "var(--ion-color-dark)",
                       }}
                     >
                       {stats.pending}
@@ -372,13 +374,13 @@ const Home: React.FC = () => {
             </IonRow>
             <IonRow>
               <IonCol size="6">
-                <IonCard style={{ margin: 0, textAlign: "center" }}>
+                <IonCard style={{ margin: 0, textAlign: "center", background: '#3880ff' }}>
                   <IonCardContent style={{ padding: 16 }}>
                     <IonIcon
                       icon={timeOutline}
                       style={{
                         fontSize: 32,
-                        color: "#3880ff",
+                        color: "var(--ion-color-light)",
                         marginBottom: 8,
                       }}
                     />
@@ -386,25 +388,25 @@ const Home: React.FC = () => {
                       style={{
                         fontSize: 24,
                         fontWeight: "bold",
-                        color: "#3880ff",
+                        color: "var(--ion-color-light)",
                       }}
                     >
                       {stats.inTransit}
                     </div>
-                    <div style={{ fontSize: 14, color: "#666" }}>
+                    <div style={{ fontSize: 14, color: "var(--ion-color-light)" }}>
                       In Transit
                     </div>
                   </IonCardContent>
                 </IonCard>
               </IonCol>
               <IonCol size="6">
-                <IonCard style={{ margin: 0, textAlign: "center" }}>
+                <IonCard style={{ margin: 0, textAlign: "center", background: '#2dd55b' }}>
                   <IonCardContent style={{ padding: 16 }}>
                     <IonIcon
                       icon={checkmarkCircleOutline}
                       style={{
                         fontSize: 32,
-                        color: "#2dd55b",
+                        color: "var(--ion-color-light)",
                         marginBottom: 8,
                       }}
                     />
@@ -412,12 +414,12 @@ const Home: React.FC = () => {
                       style={{
                         fontSize: 24,
                         fontWeight: "bold",
-                        color: "#2dd55b",
+                        color: "var(--ion-color-light)",
                       }}
                     >
                       {stats.delivered}
                     </div>
-                    <div style={{ fontSize: 14, color: "#666" }}>Completed</div>
+                    <div style={{ fontSize: 14, color: "var(--ion-color-light)" }}>Completed</div>
                   </IonCardContent>
                 </IonCard>
               </IonCol>
@@ -425,9 +427,9 @@ const Home: React.FC = () => {
           </IonGrid>
 
           {/* Quick Actions */}
-          <IonCard style={{ marginTop: 20 }}>
+          <div className="mt-2 flex justify-center flex-col">
             <IonCardHeader>
-              <IonCardTitle style={{ color: "#4846a6", fontSize: "1.2rem" }}>
+              <IonCardTitle className="ion-padding" style={{ color: "var(--ion-color-primary)", fontSize: "1.2rem" }}>
                 Quick Actions
               </IonCardTitle>
             </IonCardHeader>
@@ -435,10 +437,10 @@ const Home: React.FC = () => {
               <IonGrid style={{ padding: 0 }}>
                 <IonRow>
                   {getQuickActions().map((action, index) => (
-                    <IonCol size="6" key={index}>
+                    <IonCol className="mx-2 mb-2" size="5.5" key={index}>
                       <IonButton
                         expand="block"
-                        fill="outline"
+                        color={action.color}
                         style={{
                           height: 80,
                           flexDirection: "column",
@@ -450,11 +452,11 @@ const Home: React.FC = () => {
                           icon={action.icon}
                           style={{
                             fontSize: 24,
-                            color: action.color,
                             marginBottom: 4,
                           }}
+                          slot="start"
                         />
-                        <span style={{ fontSize: 12, color: action.color }}>
+                        <span style={{ fontSize: 12 }}>
                           {action.title}
                         </span>
                       </IonButton>
@@ -463,11 +465,14 @@ const Home: React.FC = () => {
                 </IonRow>
               </IonGrid>
             </IonCardContent>
-          </IonCard>
+          </div>
 
           {/* Recent Activity */}
           {recentItems.length > 0 && (
-            <IonCard style={{ marginTop: 20 }}>
+            <div style={{
+                marginBottom: '5rem',
+              }} 
+              className="ion-padding">
               <IonCardHeader>
                 <IonCardTitle style={{ color: "#4846a6", fontSize: "1.2rem" }}>
                   Recent{" "}
@@ -478,10 +483,9 @@ const Home: React.FC = () => {
                       : "Activity"}
                 </IonCardTitle>
               </IonCardHeader>
-              <IonCardContent style={{ padding: 0 }}>
-                <IonList>
+              <IonCardContent>
                   {recentItems.map((item) => (
-                    <IonItem key={item._id} lines="inset">
+                    <IonItem key={item._id} lines="none">
                       <IonIcon
                         icon={getStatusIcon(item.status)}
                         slot="start"
@@ -509,9 +513,9 @@ const Home: React.FC = () => {
                       </IonLabel>
                     </IonItem>
                   ))}
-                </IonList>
+                  
               </IonCardContent>
-            </IonCard>
+            </div>
           )}
         </div>
       </IonContent>

@@ -1,78 +1,30 @@
-const mongoose = require("mongoose");
+import mongoose from "mongoose";
 
 const orderSchema = new mongoose.Schema(
   {
-    customer: {
-      type: mongoose.Schema.Types.ObjectId,
-      ref: "User",
-      required: true,
-    },
-    product: {
-      type: String,
-      required: true,
-      trim: true,
-    },
+    product: { type: String, required: true },
     status: {
       type: String,
-      enum: [
-        "Pending",
-        "Confirmed",
-        "Processing",
-        "Ready for Pickup",
-        "In Transit",
-        "Delivered",
-        "Cancelled",
-      ],
+      enum: ["Pending", "Confirmed", "In Transit", "Delivered", "Cancelled"],
       default: "Pending",
     },
-    pickupAddress: {
-      type: String,
-      required: true,
-      trim: true,
-    },
-    pickupPhone: {
-      type: String,
-      required: true,
-      trim: true,
-    },
-    deliveryAddress: {
-      type: String,
-      required: true,
-      trim: true,
-    },
-    deliveryPhone: {
-      type: String,
-      required: true,
-      trim: true,
-    },
-    details: {
-      type: String,
-      trim: true,
-    },
+    pickupAddress: { type: String, required: true },
+    pickupPhone: { type: String, required: true },
+    deliveryAddress: { type: String, required: true },
+    deliveryPhone: { type: String, required: true },
+    details: { type: String },
+    customerId: { type: String, required: true }, // Firebase UID
     priority: {
       type: String,
-      enum: ["Low", "Medium", "High", "Urgent"],
+      enum: ["Low", "Medium", "High"],
       default: "Medium",
     },
-    estimatedCost: {
-      type: Number,
-      default: 0,
-    },
-    assignedDelivery: {
-      type: mongoose.Schema.Types.ObjectId,
-      ref: "Delivery",
-    },
-    requestedDeliveryDate: {
-      type: Date,
-    },
-    specialInstructions: {
-      type: String,
-      trim: true,
-    },
+    estimatedCost: { type: Number, default: 0 },
+    deliveryId: { type: mongoose.Schema.Types.ObjectId, ref: "Delivery" },
   },
-  {
-    timestamps: true,
-  },
+  { timestamps: true },
 );
 
-module.exports = mongoose.model("Order", orderSchema);
+const Order = mongoose.model("Order", orderSchema);
+
+export default Order;

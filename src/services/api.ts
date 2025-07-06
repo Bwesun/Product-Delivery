@@ -175,8 +175,8 @@ class ApiService {
     return this.handleResponse(response);
   }
 
-  async getDeliveryStats(uid: string) {
-    const response = await fetch(`${API_BASE_URL}/deliveries/stats/${uid}`, {
+  async getDeliveryStats() {
+    const response = await fetch(`${API_BASE_URL}/deliveries/stats`, {
       headers: this.getAuthHeaders(),
     });
     return this.handleResponse(response);

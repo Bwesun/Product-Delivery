@@ -7,6 +7,16 @@ import React, {
 } from "react";
 import { apiService } from "../services/api";
 
+interface UserResponse {
+  user: User;
+}
+
+
+interface AuthResponse {
+  token: string;
+  user: User;
+}
+
 interface User {
   id: string;
   name: string;
@@ -66,7 +76,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
         return;
       }
 
-      const response = await apiService.getCurrentUser();
+      const response = await apiService.getCurrentUser() as UserResponse;
       setUser(response.user);
     } catch (error) {
       console.error("Auth check failed:", error);
@@ -78,7 +88,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
 
   const login = async (email: string, password: string) => {
     try {
-      const response = await apiService.login(email, password);
+      const response = await apiService.login(email, password) as AuthResponse;
       localStorage.setItem("token", response.token);
       setUser(response.user);
     } catch (error) {
@@ -95,7 +105,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     address?: string;
   }) => {
     try {
-      const response = await apiService.register(userData);
+      const response = await apiService.register(userData) as AuthResponse;
       localStorage.setItem("token", response.token);
       setUser(response.user);
     } catch (error) {
@@ -110,7 +120,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
 
   const updateProfile = async (userData: Partial<User>) => {
     try {
-      const response = await apiService.updateProfile(userData);
+      const response = await apiService.updateProfile(userData) as AuthResponse;
       setUser(response.user);
     } catch (error) {
       throw error;

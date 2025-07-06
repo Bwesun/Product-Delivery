@@ -15,7 +15,6 @@ interface User {
   phone?: string;
   address?: string;
   avatar?: string;
-  lastLogin?: string;
 }
 
 interface AuthContextType {

@@ -5,10 +5,10 @@ import Delivery from "../models/Delivery.js";
 const router = express.Router();
 
 // Get user's orders
-router.get("/:uid", async (req, res) => {
+router.get("/", async (req, res) => {
   try {
     const { status, search } = req.query;
-    const query = { customerId: req.params.uid };
+    const query = { customerId: req.user.userId };
 
     if (status && status !== "All") {
       query.status = status;
@@ -39,7 +39,6 @@ router.post("/", async (req, res) => {
       deliveryAddress,
       deliveryPhone,
       details,
-      customerId,
       priority = "Medium",
     } = req.body;
 
@@ -51,7 +50,7 @@ router.post("/", async (req, res) => {
       deliveryAddress,
       deliveryPhone,
       details,
-      customerId,
+      customerId: req.user.userId,
       priority,
     });
 
@@ -65,7 +64,7 @@ router.post("/", async (req, res) => {
       deliveryAddress,
       deliveryPhone,
       details,
-      customerId,
+      customerId: req.user.userId,
       priority,
       date: new Date().toISOString().split("T")[0],
     });

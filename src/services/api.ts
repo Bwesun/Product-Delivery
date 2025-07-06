@@ -69,13 +69,7 @@ class ApiService {
   }
 
   // Orders (for users)
-  async getOrders(
-    uid: string,
-    params?: {
-      status?: string;
-      search?: string;
-    },
-  ) {
+  async getOrders(params?: { status?: string; search?: string }) {
     const queryParams = new URLSearchParams();
     if (params) {
       Object.entries(params).forEach(([key, value]) => {
@@ -85,12 +79,9 @@ class ApiService {
       });
     }
 
-    const response = await fetch(
-      `${API_BASE_URL}/orders/${uid}?${queryParams}`,
-      {
-        headers: this.getAuthHeaders(),
-      },
-    );
+    const response = await fetch(`${API_BASE_URL}/orders?${queryParams}`, {
+      headers: this.getAuthHeaders(),
+    });
     return this.handleResponse(response);
   }
 
@@ -102,7 +93,6 @@ class ApiService {
     deliveryPhone: string;
     details?: string;
     priority?: string;
-    customerId: string;
   }) {
     const response = await fetch(`${API_BASE_URL}/orders`, {
       method: "POST",

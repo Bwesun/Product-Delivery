@@ -70,7 +70,7 @@ const AppContent: React.FC = () => {
   if (isLoading) {
     return (
       <IonApp>
-        <div
+        <div className="light-bg"
           style={{
             display: "flex",
             justifyContent: "center",
@@ -78,7 +78,7 @@ const AppContent: React.FC = () => {
             height: "100vh",
           }}
         >
-          <IonSpinner />
+          <IonSpinner color={"primary"} name="crescent" />
         </div>
       </IonApp>
     );

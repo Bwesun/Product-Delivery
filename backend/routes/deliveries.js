@@ -107,10 +107,9 @@ router.put("/:id/assign", async (req, res) => {
 });
 
 // Get delivery statistics
-router.get("/stats/:uid", async (req, res) => {
+router.get("/stats", async (req, res) => {
   try {
-    const { uid } = req.params;
-    const user = await User.findOne({ uid });
+    const user = await User.findById(req.user.userId);
 
     if (!user) {
       return res.status(404).json({ error: "User not found" });
@@ -118,7 +117,7 @@ router.get("/stats/:uid", async (req, res) => {
 
     let query = {};
     if (user.role === "dispatcher") {
-      query.dispatcherId = uid;
+      query.dispatcherId = req.user.userId;
     }
 
     const totalDeliveries = await Delivery.countDocuments(query);

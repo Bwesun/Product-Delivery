@@ -437,7 +437,7 @@ const Home: React.FC = () => {
               <IonGrid style={{ padding: 0 }}>
                 <IonRow>
                   {getQuickActions().map((action, index) => (
-                    <IonCol className="mx-2 mb-2" size="5.5" key={index}>
+                    <IonCol className="mx-2 mb-2" size="5" key={index}>
                       <IonButton
                         expand="block"
                         color={action.color}

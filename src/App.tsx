@@ -1,4 +1,4 @@
-import { Redirect, Route } from "react-router-dom";
+import { Redirect, Route, Switch } from "react-router-dom";
 import {
   IonApp,
   IonIcon,
@@ -11,45 +11,39 @@ import {
   setupIonicReact,
 } from "@ionic/react";
 import { IonReactRouter } from "@ionic/react-router";
-import { homeOutline, personOutline, statsChartOutline } from "ionicons/icons";
+import {
+  homeOutline,
+  personOutline,
+  statsChartOutline,
+} from "ionicons/icons";
 
-/* Core CSS required for Ionic components to work properly */
+/* Core and Optional Ionic CSS */
 import "@ionic/react/css/core.css";
-
-/* Basic CSS for apps built with Ionic */
 import "@ionic/react/css/normalize.css";
 import "@ionic/react/css/structure.css";
 import "@ionic/react/css/typography.css";
-
-/* Optional CSS utils that can be commented out */
 import "@ionic/react/css/padding.css";
 import "@ionic/react/css/float-elements.css";
 import "@ionic/react/css/text-alignment.css";
 import "@ionic/react/css/text-transformation.css";
 import "@ionic/react/css/flex-utils.css";
 import "@ionic/react/css/display.css";
-
-/**
- * Ionic Dark Mode
- * -----------------------------------------------------
- * For more info, please see:
- * https://ionicframework.com/docs/theming/dark-mode
- */
-
-/* import '@ionic/react/css/palettes/dark.always.css'; */
-/* import '@ionic/react/css/palettes/dark.class.css'; */
 import "@ionic/react/css/palettes/dark.system.css";
 
-/* Theme variables */
+/* Theme */
 import "./theme/variables.css";
+
+/* Pages */
 import Login from "./pages/Login";
 import Register from "./components/Register";
 import Home from "./pages/Home";
 import Profile from "./pages/Profile";
-import { Logs, Package } from "lucide-react";
 import Deliveries from "./pages/Deliveries";
 import Orders from "./pages/Orders";
 import AdminDashboard from "./pages/AdminDashboard";
+
+/* Other */
+import { Logs, Package } from "lucide-react";
 import { StatusBar, Style } from "@capacitor/status-bar";
 import { useEffect } from "react";
 import { AuthProvider, useAuth } from "./contexts/AuthContext";
@@ -95,68 +89,71 @@ const AppContent: React.FC = () => {
       <IonApp>
         <IonReactRouter>
           <IonRouterOutlet>
-            <Route exact path="/login" component={Login} />
-            <Route exact path="/register" component={Register} />
-            <Route exact path="/">
-              <Redirect to="/login" />
-            </Route>
-            <Route>
-              <Redirect to="/login" />
-            </Route>
+            <Switch>
+              <Route exact path="/login" component={Login} />
+              <Route exact path="/register" component={Register} />
+              <Route exact path="/">
+                <Redirect to="/login" />
+              </Route>
+              <Route>
+                <Redirect to="/login" />
+              </Route>
+            </Switch>
           </IonRouterOutlet>
         </IonReactRouter>
       </IonApp>
     );
   }
 
-  // Role-based rendering
   return (
     <IonApp>
       <IonReactRouter>
         <IonTabs>
           <IonRouterOutlet>
-            <Route exact path="/home" component={Home} />
-            <Route exact path="/profile" component={Profile} />
+            <Switch>
+              <Route exact path="/home" component={Home} />
+              <Route exact path="/profile" component={Profile} />
 
-            {/* User routes */}
-            {user?.role === "user" && (
-              <Route exact path="/orders" component={Orders} />
-            )}
-
-            {/* Dispatcher routes */}
-            {user?.role === "dispatcher" && (
-              <Route exact path="/deliveries" component={Deliveries} />
-            )}
-
-            {/* Admin routes */}
-            {user?.role === "admin" && (
-              <>
-                <Route exact path="/admin" component={AdminDashboard} />
+              {user?.role === "user" && (
                 <Route exact path="/orders" component={Orders} />
-                <Route exact path="/deliveries" component={Deliveries} />
-              </>
-            )}
+              )}
 
-            <Route exact path="/">
-              <Redirect to="/home" />
-            </Route>
+              {user?.role === "dispatcher" && (
+                <Route exact path="/deliveries" component={Deliveries} />
+              )}
+
+              {user?.role === "admin" && (
+                <>
+                  <Route exact path="/admin" component={AdminDashboard} />
+                  <Route exact path="/orders" component={Orders} />
+                  <Route exact path="/deliveries" component={Deliveries} />
+                </>
+              )}
+
+              <Route exact path="/">
+                <Redirect to="/home" />
+              </Route>
+              <Route>
+                <Redirect to="/home" />
+              </Route>
+            </Switch>
           </IonRouterOutlet>
 
           <IonTabBar slot="bottom" className="floating-tab-bar">
             <IonTabButton tab="home" href="/home">
-              <IonIcon aria-hidden="true" icon={homeOutline} />
+              <IonIcon icon={homeOutline} />
               <IonLabel>Home</IonLabel>
             </IonTabButton>
 
             {user?.role === "user" && (
-              <IonTabButton tab="orders" href="/orders">
+              <IonTabButton tab="user-orders" href="/orders">
                 <Logs size={24} />
                 <IonLabel>Orders</IonLabel>
               </IonTabButton>
             )}
 
             {user?.role === "dispatcher" && (
-              <IonTabButton tab="deliveries" href="/deliveries">
+              <IonTabButton tab="dispatcher-deliveries" href="/deliveries">
                 <Package size={24} />
                 <IonLabel>Deliveries</IonLabel>
               </IonTabButton>
@@ -164,15 +161,15 @@ const AppContent: React.FC = () => {
 
             {user?.role === "admin" && (
               <>
-                <IonTabButton tab="admin" href="/admin">
-                  <IonIcon aria-hidden="true" icon={statsChartOutline} />
+                <IonTabButton tab="admin-dashboard" href="/admin">
+                  <IonIcon icon={statsChartOutline} />
                   <IonLabel>Dashboard</IonLabel>
                 </IonTabButton>
-                <IonTabButton tab="orders" href="/orders">
+                <IonTabButton tab="admin-orders" href="/orders">
                   <Logs size={24} />
                   <IonLabel>Orders</IonLabel>
                 </IonTabButton>
-                <IonTabButton tab="deliveries" href="/deliveries">
+                <IonTabButton tab="admin-deliveries" href="/deliveries">
                   <Package size={24} />
                   <IonLabel>Deliveries</IonLabel>
                 </IonTabButton>
@@ -180,7 +177,7 @@ const AppContent: React.FC = () => {
             )}
 
             <IonTabButton tab="profile" href="/profile">
-              <IonIcon aria-hidden="true" icon={personOutline} />
+              <IonIcon icon={personOutline} />
               <IonLabel>Profile</IonLabel>
             </IonTabButton>
           </IonTabBar>

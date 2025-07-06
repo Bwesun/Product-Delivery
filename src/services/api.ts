@@ -137,9 +137,8 @@ class ApiService {
   // Deliveries (for dispatchers)
   async getDeliveries(params?: {
     status?: string;
-    page?: number;
-    limit?: number;
     search?: string;
+    dispatcherId?: string;
   }) {
     const queryParams = new URLSearchParams();
     if (params) {
@@ -172,8 +171,20 @@ class ApiService {
     return this.handleResponse(response);
   }
 
-  async getDeliveryStats() {
-    const response = await fetch(`${API_BASE_URL}/deliveries/stats/dashboard`, {
+  async assignDelivery(deliveryId: string, dispatcherId: string) {
+    const response = await fetch(
+      `${API_BASE_URL}/deliveries/${deliveryId}/assign`,
+      {
+        method: "PUT",
+        headers: this.getAuthHeaders(),
+        body: JSON.stringify({ dispatcherId }),
+      },
+    );
+    return this.handleResponse(response);
+  }
+
+  async getDeliveryStats(uid: string) {
+    const response = await fetch(`${API_BASE_URL}/deliveries/stats/${uid}`, {
       headers: this.getAuthHeaders(),
     });
     return this.handleResponse(response);

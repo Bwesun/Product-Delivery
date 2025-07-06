@@ -74,69 +74,117 @@ const Home: React.FC = () => {
 
       if (user.role === "user") {
         // Load user's orders
-        const ordersResponse = await apiService.getOrders();
-        const orders = ordersResponse.orders || [];
+        try {
+          const ordersResponse = await apiService.getOrders();
+          const orders = ordersResponse.orders || [];
 
-        setStats({
-          total: orders.length,
-          pending: orders.filter((o: any) => o.status === "Pending").length,
-          inTransit: orders.filter((o: any) => o.status === "In Transit")
-            .length,
-          delivered: orders.filter((o: any) => o.status === "Delivered").length,
-          today: orders.filter(
-            (o: any) =>
-              new Date(o.createdAt).toDateString() ===
-              new Date().toDateString(),
-          ).length,
-        });
+          setStats({
+            total: orders.length,
+            pending: orders.filter((o: any) => o.status === "Pending").length,
+            inTransit: orders.filter((o: any) => o.status === "In Transit")
+              .length,
+            delivered: orders.filter((o: any) => o.status === "Delivered")
+              .length,
+            today: orders.filter(
+              (o: any) =>
+                new Date(o.createdAt).toDateString() ===
+                new Date().toDateString(),
+            ).length,
+          });
 
-        setRecentItems(orders.slice(0, 5));
+          setRecentItems(orders.slice(0, 5));
+        } catch (apiError) {
+          console.error("API call failed, using default data:", apiError);
+          // Set default demo data when API fails
+          setStats({
+            total: 0,
+            pending: 0,
+            inTransit: 0,
+            delivered: 0,
+            today: 0,
+          });
+          setRecentItems([]);
+        }
       } else if (user.role === "dispatcher") {
         // Load dispatcher's deliveries
-        const deliveriesResponse = await apiService.getDeliveries();
-        const deliveries = deliveriesResponse.deliveries || [];
+        try {
+          const deliveriesResponse = await apiService.getDeliveries();
+          const deliveries = deliveriesResponse.deliveries || [];
 
-        setStats({
-          total: deliveries.length,
-          pending: deliveries.filter((d: any) => d.status === "Pending").length,
-          inTransit: deliveries.filter((d: any) => d.status === "In Transit")
-            .length,
-          delivered: deliveries.filter((d: any) => d.status === "Delivered")
-            .length,
-          today: deliveries.filter(
-            (d: any) =>
-              new Date(d.createdAt).toDateString() ===
-              new Date().toDateString(),
-          ).length,
-        });
+          setStats({
+            total: deliveries.length,
+            pending: deliveries.filter((d: any) => d.status === "Pending")
+              .length,
+            inTransit: deliveries.filter((d: any) => d.status === "In Transit")
+              .length,
+            delivered: deliveries.filter((d: any) => d.status === "Delivered")
+              .length,
+            today: deliveries.filter(
+              (d: any) =>
+                new Date(d.createdAt).toDateString() ===
+                new Date().toDateString(),
+            ).length,
+          });
 
-        setRecentItems(deliveries.slice(0, 5));
+          setRecentItems(deliveries.slice(0, 5));
+        } catch (apiError) {
+          console.error("API call failed, using default data:", apiError);
+          setStats({
+            total: 0,
+            pending: 0,
+            inTransit: 0,
+            delivered: 0,
+            today: 0,
+          });
+          setRecentItems([]);
+        }
       } else if (user.role === "admin") {
         // Load admin dashboard stats
-        const adminResponse = await apiService.getAdminDashboardStats();
-        const adminStats = adminResponse.stats;
+        try {
+          const adminResponse = await apiService.getAdminDashboardStats();
+          const adminStats = adminResponse.stats;
 
-        setStats({
-          total: adminStats.overview.totalOrders,
-          pending:
-            adminStats.statusDistribution.orders.find(
-              (s: any) => s._id === "Pending",
-            )?.count || 0,
-          inTransit:
-            adminStats.statusDistribution.orders.find(
-              (s: any) => s._id === "In Transit",
-            )?.count || 0,
-          delivered:
-            adminStats.statusDistribution.orders.find(
-              (s: any) => s._id === "Delivered",
-            )?.count || 0,
-          today: adminStats.overview.todayOrders,
-        });
+          setStats({
+            total: adminStats.overview.totalOrders,
+            pending:
+              adminStats.statusDistribution.orders.find(
+                (s: any) => s._id === "Pending",
+              )?.count || 0,
+            inTransit:
+              adminStats.statusDistribution.orders.find(
+                (s: any) => s._id === "In Transit",
+              )?.count || 0,
+            delivered:
+              adminStats.statusDistribution.orders.find(
+                (s: any) => s._id === "Delivered",
+              )?.count || 0,
+            today: adminStats.overview.todayOrders,
+          });
 
-        setRecentItems(adminStats.recentActivities.orders.slice(0, 5));
+          setRecentItems(adminStats.recentActivities.orders.slice(0, 5));
+        } catch (apiError) {
+          console.error("API call failed, using default data:", apiError);
+          setStats({
+            total: 0,
+            pending: 0,
+            inTransit: 0,
+            delivered: 0,
+            today: 0,
+          });
+          setRecentItems([]);
+        }
       }
     } catch (error) {
       console.error("Failed to load dashboard data:", error);
+      // Ensure we always have some default state
+      setStats({
+        total: 0,
+        pending: 0,
+        inTransit: 0,
+        delivered: 0,
+        today: 0,
+      });
+      setRecentItems([]);
     } finally {
       setLoading(false);
     }

@@ -1,48 +1,100 @@
 import express from "express";
+import jwt from "jsonwebtoken";
 import User from "../models/User.js";
 
 const router = express.Router();
 
-// Create or update user profile
-router.post("/profile", async (req, res) => {
+// Register user
+router.post("/register", async (req, res) => {
   try {
-    const {
-      uid,
-      name,
-      email,
-      role = "user",
-      phone,
-      address,
-      avatar,
-    } = req.body;
+    const { name, email, password, role = "user", phone, address } = req.body;
 
-    let user = await User.findOne({ uid });
-
-    if (user) {
-      // Update existing user
-      user.name = name || user.name;
-      user.email = email || user.email;
-      user.phone = phone || user.phone;
-      user.address = address || user.address;
-      user.avatar = avatar || user.avatar;
-      if (role) user.role = role;
-      await user.save();
-    } else {
-      // Create new user
-      user = new User({ uid, name, email, role, phone, address, avatar });
-      await user.save();
+    // Check if user already exists
+    const existingUser = await User.findOne({ email });
+    if (existingUser) {
+      return res.status(400).json({ error: "User already exists" });
     }
 
-    res.json({ success: true, user });
+    // Create new user
+    const user = new User({ name, email, password, role, phone, address });
+    await user.save();
+
+    // Generate JWT token
+    const token = jwt.sign(
+      { userId: user._id, email: user.email, role: user.role },
+      process.env.JWT_SECRET || "your-secret-key",
+      { expiresIn: "7d" },
+    );
+
+    res.json({
+      success: true,
+      token,
+      user: {
+        id: user._id,
+        name: user.name,
+        email: user.email,
+        role: user.role,
+        phone: user.phone,
+        address: user.address,
+        avatar: user.avatar,
+      },
+    });
   } catch (error) {
     res.status(500).json({ error: error.message });
   }
 });
 
-// Get user profile
-router.get("/profile/:uid", async (req, res) => {
+// Login user
+router.post("/login", async (req, res) => {
   try {
-    const user = await User.findOne({ uid: req.params.uid });
+    const { email, password } = req.body;
+
+    // Find user
+    const user = await User.findOne({ email });
+    if (!user) {
+      return res.status(400).json({ error: "Invalid credentials" });
+    }
+
+    // Check password
+    const isMatch = await user.comparePassword(password);
+    if (!isMatch) {
+      return res.status(400).json({ error: "Invalid credentials" });
+    }
+
+    // Check if user is active
+    if (!user.isActive) {
+      return res.status(400).json({ error: "Account is deactivated" });
+    }
+
+    // Generate JWT token
+    const token = jwt.sign(
+      { userId: user._id, email: user.email, role: user.role },
+      process.env.JWT_SECRET || "your-secret-key",
+      { expiresIn: "7d" },
+    );
+
+    res.json({
+      success: true,
+      token,
+      user: {
+        id: user._id,
+        name: user.name,
+        email: user.email,
+        role: user.role,
+        phone: user.phone,
+        address: user.address,
+        avatar: user.avatar,
+      },
+    });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+// Get current user
+router.get("/me", async (req, res) => {
+  try {
+    const user = await User.findById(req.user.userId).select("-password");
     if (!user) {
       return res.status(404).json({ error: "User not found" });
     }
@@ -53,10 +105,10 @@ router.get("/profile/:uid", async (req, res) => {
 });
 
 // Update user profile
-router.put("/profile/:uid", async (req, res) => {
+router.put("/profile", async (req, res) => {
   try {
     const { name, phone, address, avatar } = req.body;
-    const user = await User.findOne({ uid: req.params.uid });
+    const user = await User.findById(req.user.userId);
 
     if (!user) {
       return res.status(404).json({ error: "User not found" });
@@ -68,7 +120,18 @@ router.put("/profile/:uid", async (req, res) => {
     if (avatar) user.avatar = avatar;
 
     await user.save();
-    res.json({ success: true, user });
+    res.json({
+      success: true,
+      user: {
+        id: user._id,
+        name: user.name,
+        email: user.email,
+        role: user.role,
+        phone: user.phone,
+        address: user.address,
+        avatar: user.avatar,
+      },
+    });
   } catch (error) {
     res.status(500).json({ error: error.message });
   }

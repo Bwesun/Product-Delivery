@@ -25,6 +25,9 @@ import {
   IonInput,
   IonSelect,
   IonSelectOption,
+  IonHeader,
+  IonToolbar,
+  IonTitle,
 } from "@ionic/react";
 import {
   peopleOutline,
@@ -444,7 +447,6 @@ const AdminDashboard: React.FC = () => {
 
   const renderUsers = () => (
     <div>
-      <IonCard>
         <IonCardHeader
           style={{
             display: "flex",
@@ -452,16 +454,15 @@ const AdminDashboard: React.FC = () => {
             alignItems: "center",
           }}
         >
-          <IonCardTitle>User Management</IonCardTitle>
+          <IonCardTitle className="ion-padding-bottom" color={"primary"}>User Management</IonCardTitle>
           <IonButton size="small" onClick={() => openUserModal()}>
             <IonIcon icon={addCircleOutline} slot="start" />
             Add User
           </IonButton>
         </IonCardHeader>
         <IonCardContent>
-          <IonList>
             {users.map((user) => (
-              <IonItem key={user._id}>
+              <IonItem className="mb-4 border-b-gray-300 border-b" lines="none" key={user._id}>
                 <IonLabel>
                   <h2 style={{ fontWeight: 600 }}>{user.name}</h2>
                   <p>{user.email}</p>
@@ -482,26 +483,24 @@ const AdminDashboard: React.FC = () => {
                 </IonLabel>
                 <div slot="end" style={{ display: "flex", gap: 8 }}>
                   <IonButton
-                    size="small"
-                    fill="outline"
+                    fill="clear"
+                    shape="round"
                     onClick={() => openUserModal(user)}
                   >
-                    <IonIcon icon={createOutline} />
+                    <IonIcon slot="icon-only" icon={createOutline} />
                   </IonButton>
                   <IonButton
-                    size="small"
-                    fill="outline"
+                  shape="round"
+                    fill="clear"
                     color="danger"
                     onClick={() => handleUserDelete(user._id)}
                   >
-                    <IonIcon icon={trashOutline} />
+                    <IonIcon slot="icon-only" icon={trashOutline} />
                   </IonButton>
                 </div>
               </IonItem>
             ))}
-          </IonList>
         </IonCardContent>
-      </IonCard>
     </div>
   );
 
@@ -526,12 +525,12 @@ const AdminDashboard: React.FC = () => {
             onIonChange={(e) => setSelectedSegment(e.detail.value as string)}
           >
             <IonSegmentButton value="dashboard">
-              <IonIcon icon={statsChartOutline} />
-              <IonLabel>Dashboard</IonLabel>
+              <IonIcon color={"primary"} icon={statsChartOutline} />
+              <IonLabel color={"primary"}>Dashboard</IonLabel>
             </IonSegmentButton>
-            <IonSegmentButton value="users">
-              <IonIcon icon={peopleOutline} />
-              <IonLabel>Users</IonLabel>
+            <IonSegmentButton color="secondary" value="users">
+              <IonIcon color={"primary"} icon={peopleOutline} />
+              <IonLabel color={"primary"}>Users</IonLabel>
             </IonSegmentButton>
           </IonSegment>
 
@@ -546,22 +545,19 @@ const AdminDashboard: React.FC = () => {
           isOpen={showUserModal}
           onDidDismiss={() => setShowUserModal(false)}
         >
-          <div style={{ padding: 20 }}>
-            <div
-              style={{
-                display: "flex",
-                justifyContent: "space-between",
-                alignItems: "center",
-                marginBottom: 20,
-              }}
-            >
-              <h2 style={{ margin: 0, color: "#4846a6" }}>
-                {selectedUser ? "Edit User" : "Add User"}
-              </h2>
-              <IonButton fill="clear" onClick={() => setShowUserModal(false)}>
-                <IonIcon icon={closeOutline} />
-              </IonButton>
-            </div>
+          <IonHeader>
+            <IonToolbar color={"primary"}>
+              <IonTitle className="ion-padding-start" color={"secondary"}>
+                <div className="flex justify-between items-center">
+                  {selectedUser ? "Edit User" : "Add User"}
+                  <IonButton fill="clear" onClick={() => setShowUserModal(false)}>
+                  <IonIcon color="light" slot="icon-only" icon={closeOutline} />
+                </IonButton>
+                </div>
+              </IonTitle> 
+            </IonToolbar>
+          </IonHeader>
+          <IonContent className="ion-padding" color={"light"}>
 
             <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
               <IonInput
@@ -572,7 +568,6 @@ const AdminDashboard: React.FC = () => {
                   setEditForm({ ...editForm, name: e.detail.value! })
                 }
                 style={{
-                  border: "1px solid #ddd",
                   borderRadius: 8,
                   padding: 10,
                 }}
@@ -585,7 +580,6 @@ const AdminDashboard: React.FC = () => {
                   setEditForm({ ...editForm, email: e.detail.value! })
                 }
                 style={{
-                  border: "1px solid #ddd",
                   borderRadius: 8,
                   padding: 10,
                 }}
@@ -598,7 +592,6 @@ const AdminDashboard: React.FC = () => {
                   setEditForm({ ...editForm, phone: e.detail.value! })
                 }
                 style={{
-                  border: "1px solid #ddd",
                   borderRadius: 8,
                   padding: 10,
                 }}
@@ -611,7 +604,6 @@ const AdminDashboard: React.FC = () => {
                   setEditForm({ ...editForm, address: e.detail.value! })
                 }
                 style={{
-                  border: "1px solid #ddd",
                   borderRadius: 8,
                   padding: 10,
                 }}
@@ -624,7 +616,6 @@ const AdminDashboard: React.FC = () => {
                   setEditForm({ ...editForm, role: e.detail.value })
                 }
                 style={{
-                  border: "1px solid #ddd",
                   borderRadius: 8,
                   padding: 10,
                 }}
@@ -641,7 +632,6 @@ const AdminDashboard: React.FC = () => {
                   setEditForm({ ...editForm, isActive: e.detail.value })
                 }
                 style={{
-                  border: "1px solid #ddd",
                   borderRadius: 8,
                   padding: 10,
                 }}
@@ -669,7 +659,7 @@ const AdminDashboard: React.FC = () => {
                 </IonButton>
               </div>
             </div>
-          </div>
+          </IonContent>
         </IonModal>
 
         <IonLoading isOpen={loading} message="Please wait..." />

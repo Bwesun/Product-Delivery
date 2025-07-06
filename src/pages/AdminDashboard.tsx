@@ -68,6 +68,15 @@ ChartJS.register(
   Legend,
 );
 
+interface AdminDashboardStatsResponse {
+  stats: DashboardStats;
+}
+
+interface UsersResponse {
+  users: User[];
+}
+
+
 interface DashboardStats {
   overview: {
     totalUsers: number;
@@ -129,7 +138,7 @@ const AdminDashboard: React.FC = () => {
   const loadDashboardData = async () => {
     try {
       setLoading(true);
-      const response = await apiService.getAdminDashboardStats();
+      const response = await apiService.getAdminDashboardStats() as AdminDashboardStatsResponse;
       setStats(response.stats);
     } catch (error: any) {
       setToastMessage(error.message || "Failed to load dashboard data");
@@ -142,7 +151,7 @@ const AdminDashboard: React.FC = () => {
   const loadUsers = async () => {
     try {
       setLoading(true);
-      const response = await apiService.getUsers();
+      const response = await apiService.getUsers() as UsersResponse;
       setUsers(response.users || []);
     } catch (error: any) {
       setToastMessage(error.message || "Failed to load users");

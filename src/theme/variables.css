@@ -107,8 +107,8 @@ ion-item, ion-card, ion-list{
 }
 
 ion-input, ion-textarea, ion-select, ion-search-bar{
-	background: var(--ion-color-light); 
-	color: var(--ion-color-dark) !important;
+	background: var(--ion-color-light) ; 
+	color: var(--ion-color-medium) !important;
 	border-radius: 5rem;
-	/* border-bottom: 1px solid var(--ion-color-tertiary-tint); */
+	border-bottom: 1px solid rgba(0,0,0, 0.1);
 }

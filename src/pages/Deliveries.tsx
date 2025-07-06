@@ -70,6 +70,10 @@ const statusOptions = [
   "Cancelled",
 ];
 
+type DeliveryResponse = {
+  deliveries: Delivery[];
+};
+
 const Deliveries: React.FC = () => {
   const [deliveries, setDeliveries] = useState<Delivery[]>([]);
   const [loading, setLoading] = useState(true);
@@ -94,7 +98,7 @@ const Deliveries: React.FC = () => {
       const response = await apiService.getDeliveries({
         status: filterStatus !== "All" ? filterStatus : undefined,
         search: searchText || undefined,
-      });
+      }) as DeliveryResponse;;
       setDeliveries(response.deliveries || []);
     } catch (error: any) {
       setToastMessage(error.message || "Failed to load deliveries");

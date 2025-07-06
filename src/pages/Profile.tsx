@@ -43,6 +43,10 @@ interface RecentOrder {
   createdAt: string;
 }
 
+interface OrdersResponse {
+  orders: RecentOrder[];
+}
+
 const Profile: React.FC = () => {
   const { user, logout, updateProfile } = useAuth();
   const history = useHistory();
@@ -74,7 +78,7 @@ const Profile: React.FC = () => {
     if (user?.role !== "user") return;
 
     try {
-      const response = await apiService.getOrders();
+      const response = await apiService.getOrders() as OrdersResponse;
       setRecentOrders((response.orders || []).slice(0, 3));
     } catch (error: any) {
       console.error("Failed to load recent orders:", error);

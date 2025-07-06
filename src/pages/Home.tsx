@@ -33,6 +33,35 @@ import Header from "../components/Header";
 import { useAuth } from "../contexts/AuthContext";
 import { apiService } from "../services/api";
 
+interface OrdersResponse {
+  orders: RecentItem[]; // or `Order[]` if you use a different shape
+}
+
+interface DeliveriesResponse {
+  deliveries: RecentItem[];
+}
+
+interface AdminDashboardStats {
+  overview: {
+    totalOrders: number;
+    todayOrders: number;
+  };
+  statusDistribution: {
+    orders: {
+      _id: string;
+      count: number;
+    }[];
+  };
+  recentActivities: {
+    orders: RecentItem[];
+  };
+}
+
+interface AdminResponse {
+  stats: AdminDashboardStats;
+}
+
+
 interface Stats {
   total: number;
   pending: number;
@@ -74,7 +103,7 @@ const Home: React.FC = () => {
 
       if (user.role === "user") {
         // Load user's orders
-        const ordersResponse = await apiService.getOrders();
+        const ordersResponse = await apiService.getOrders() as OrdersResponse;
         const orders = ordersResponse.orders || [];
 
         setStats({
@@ -93,7 +122,7 @@ const Home: React.FC = () => {
         setRecentItems(orders.slice(0, 5));
       } else if (user.role === "dispatcher") {
         // Load dispatcher's deliveries
-        const deliveriesResponse = await apiService.getDeliveries();
+        const deliveriesResponse = await apiService.getDeliveries() as DeliveriesResponse;
         const deliveries = deliveriesResponse.deliveries || [];
 
         setStats({
@@ -113,7 +142,7 @@ const Home: React.FC = () => {
         setRecentItems(deliveries.slice(0, 5));
       } else if (user.role === "admin") {
         // Load admin dashboard stats
-        const adminResponse = await apiService.getAdminDashboardStats();
+        const adminResponse = await apiService.getAdminDashboardStats() as AdminResponse;
         const adminStats = adminResponse.stats;
 
         setStats({

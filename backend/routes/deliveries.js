@@ -1,20 +1,17 @@
-const express = require("express");
-const Delivery = require("../models/Delivery");
-const Order = require("../models/Order");
-const User = require("../models/User");
-const { auth, dispatcherOnly } = require("../middleware/auth");
+import express from "express";
+import Delivery from "../models/Delivery.js";
+import User from "../models/User.js";
 
 const router = express.Router();
 
-// Get all deliveries (dispatchers only)
-router.get("/", auth, dispatcherOnly, async (req, res) => {
+// Get all deliveries (for dispatchers)
+router.get("/", async (req, res) => {
   try {
-    const { status, page = 1, limit = 10, search } = req.query;
+    const { status, search, dispatcherId } = req.query;
     const query = {};
 
-    // If not admin, only show deliveries assigned to this dispatcher
-    if (req.user.role !== "admin") {
-      query.dispatcher = req.user._id;
+    if (dispatcherId) {
+      query.dispatcherId = dispatcherId;
     }
 
     if (status && status !== "All") {
@@ -29,203 +26,135 @@ router.get("/", auth, dispatcherOnly, async (req, res) => {
       ];
     }
 
-    const deliveries = await Delivery.find(query)
-      .populate("customer", "name email phone")
-      .populate("dispatcher", "name email phone")
-      .sort({ createdAt: -1 })
-      .limit(limit * 1)
-      .skip((page - 1) * limit);
+    const deliveries = await Delivery.find(query).sort({ createdAt: -1 });
 
-    const total = await Delivery.countDocuments(query);
+    // Get customer and dispatcher names
+    const enrichedDeliveries = await Promise.all(
+      deliveries.map(async (delivery) => {
+        const customer = await User.findOne({ uid: delivery.customerId });
+        const dispatcher = delivery.dispatcherId
+          ? await User.findOne({ uid: delivery.dispatcherId })
+          : null;
 
-    res.json({
-      deliveries,
-      totalPages: Math.ceil(total / limit),
-      currentPage: page,
-      total,
-    });
+        return {
+          ...delivery.toObject(),
+          customerName: customer?.name || "Unknown",
+          dispatcherName: dispatcher?.name || "Unassigned",
+        };
+      }),
+    );
+
+    res.json({ success: true, deliveries: enrichedDeliveries });
   } catch (error) {
-    console.error("Get deliveries error:", error);
-    res.status(500).json({ message: "Server error" });
-  }
-});
-
-// Get delivery by ID
-router.get("/:id", auth, dispatcherOnly, async (req, res) => {
-  try {
-    const delivery = await Delivery.findById(req.params.id)
-      .populate("customer", "name email phone")
-      .populate("dispatcher", "name email phone")
-      .populate("orderId");
-
-    if (!delivery) {
-      return res.status(404).json({ message: "Delivery not found" });
-    }
-
-    // If not admin, only allow access to own deliveries
-    if (
-      req.user.role !== "admin" &&
-      delivery.dispatcher._id.toString() !== req.user._id.toString()
-    ) {
-      return res.status(403).json({ message: "Access denied" });
-    }
-
-    res.json(delivery);
-  } catch (error) {
-    console.error("Get delivery error:", error);
-    res.status(500).json({ message: "Server error" });
+    res.status(500).json({ error: error.message });
   }
 });
 
 // Update delivery status
-router.put("/:id/status", auth, dispatcherOnly, async (req, res) => {
+router.put("/:id/status", async (req, res) => {
   try {
     const { status, notes } = req.body;
-
     const delivery = await Delivery.findById(req.params.id);
+
     if (!delivery) {
-      return res.status(404).json({ message: "Delivery not found" });
+      return res.status(404).json({ error: "Delivery not found" });
     }
 
-    // If not admin, only allow access to own deliveries
-    if (
-      req.user.role !== "admin" &&
-      delivery.dispatcher.toString() !== req.user._id.toString()
-    ) {
-      return res.status(403).json({ message: "Access denied" });
-    }
-
-    const oldStatus = delivery.status;
     delivery.status = status;
-
-    // Add to status history
-    delivery.statusHistory.push({
-      status,
-      notes,
-      updatedBy: req.user._id,
-      timestamp: new Date(),
-    });
-
-    // Set delivery time if delivered
     if (status === "Delivered") {
       delivery.actualDeliveryTime = new Date();
     }
 
     await delivery.save();
 
-    // Update related order status
-    if (delivery.orderId) {
-      const order = await Order.findById(delivery.orderId);
-      if (order) {
-        order.status = status;
-        await order.save();
-      }
-    }
-
-    // Emit real-time update
-    req.io.to("admin-room").emit("delivery-updated", {
-      deliveryId: delivery._id,
-      status,
-      oldStatus,
-      updatedBy: req.user.name,
-    });
-
     res.json({
-      message: "Delivery status updated successfully",
+      success: true,
       delivery,
+      message: "Status updated successfully",
     });
   } catch (error) {
-    console.error("Update delivery status error:", error);
-    res.status(500).json({ message: "Server error" });
+    res.status(500).json({ error: error.message });
   }
 });
 
-// Assign delivery to dispatcher (admin only)
-router.put("/:id/assign", auth, async (req, res) => {
+// Assign delivery to dispatcher
+router.put("/:id/assign", async (req, res) => {
   try {
-    if (req.user.role !== "admin") {
-      return res.status(403).json({ message: "Admin access required" });
-    }
-
     const { dispatcherId } = req.body;
-
     const delivery = await Delivery.findById(req.params.id);
+
     if (!delivery) {
-      return res.status(404).json({ message: "Delivery not found" });
+      return res.status(404).json({ error: "Delivery not found" });
     }
 
-    const dispatcher = await User.findById(dispatcherId);
+    const dispatcher = await User.findOne({ uid: dispatcherId });
     if (!dispatcher || dispatcher.role !== "dispatcher") {
-      return res.status(400).json({ message: "Invalid dispatcher" });
+      return res.status(400).json({ error: "Invalid dispatcher" });
     }
 
-    delivery.dispatcher = dispatcherId;
+    delivery.dispatcherId = dispatcherId;
     delivery.status = "Assigned";
-    delivery.statusHistory.push({
-      status: "Assigned",
-      notes: `Assigned to ${dispatcher.name}`,
-      updatedBy: req.user._id,
-      timestamp: new Date(),
-    });
-
     await delivery.save();
 
-    // Emit real-time update
-    req.io.to("dispatcher-room").emit("delivery-assigned", {
-      deliveryId: delivery._id,
-      dispatcherId,
-      dispatcherName: dispatcher.name,
-    });
-
     res.json({
-      message: "Delivery assigned successfully",
+      success: true,
       delivery,
+      message: "Delivery assigned successfully",
     });
   } catch (error) {
-    console.error("Assign delivery error:", error);
-    res.status(500).json({ message: "Server error" });
+    res.status(500).json({ error: error.message });
   }
 });
 
-// Get delivery statistics for dispatcher
-router.get("/stats/dashboard", auth, dispatcherOnly, async (req, res) => {
+// Get delivery statistics
+router.get("/stats/:uid", async (req, res) => {
   try {
-    const query = req.user.role === "admin" ? {} : { dispatcher: req.user._id };
+    const { uid } = req.params;
+    const user = await User.findOne({ uid });
 
-    const stats = await Delivery.aggregate([
-      { $match: query },
-      {
-        $group: {
-          _id: "$status",
-          count: { $sum: 1 },
-        },
-      },
-    ]);
+    if (!user) {
+      return res.status(404).json({ error: "User not found" });
+    }
+
+    let query = {};
+    if (user.role === "dispatcher") {
+      query.dispatcherId = uid;
+    }
 
     const totalDeliveries = await Delivery.countDocuments(query);
+    const pendingDeliveries = await Delivery.countDocuments({
+      ...query,
+      status: "Pending",
+    });
+    const inTransitDeliveries = await Delivery.countDocuments({
+      ...query,
+      status: "In Transit",
+    });
+    const deliveredCount = await Delivery.countDocuments({
+      ...query,
+      status: "Delivered",
+    });
+
+    // Today's deliveries
+    const today = new Date().toISOString().split("T")[0];
     const todayDeliveries = await Delivery.countDocuments({
       ...query,
-      createdAt: {
-        $gte: new Date(new Date().setHours(0, 0, 0, 0)),
-        $lt: new Date(new Date().setHours(23, 59, 59, 999)),
-      },
+      date: today,
     });
-
-    const recentDeliveries = await Delivery.find(query)
-      .populate("customer", "name")
-      .sort({ createdAt: -1 })
-      .limit(5);
 
     res.json({
-      stats,
-      totalDeliveries,
-      todayDeliveries,
-      recentDeliveries,
+      success: true,
+      stats: {
+        total: totalDeliveries,
+        pending: pendingDeliveries,
+        inTransit: inTransitDeliveries,
+        delivered: deliveredCount,
+        today: todayDeliveries,
+      },
     });
   } catch (error) {
-    console.error("Get delivery stats error:", error);
-    res.status(500).json({ message: "Server error" });
+    res.status(500).json({ error: error.message });
   }
 });
 
-module.exports = router;
+export default router;

@@ -31,9 +31,9 @@ router.get("/", async (req, res) => {
     // Get customer and dispatcher names
     const enrichedDeliveries = await Promise.all(
       deliveries.map(async (delivery) => {
-        const customer = await User.findOne({ uid: delivery.customerId });
+        const customer = await User.findById(delivery.customerId);
         const dispatcher = delivery.dispatcherId
-          ? await User.findOne({ uid: delivery.dispatcherId })
+          ? await User.findById(delivery.dispatcherId)
           : null;
 
         return {

@@ -1,6 +1,7 @@
 import { IonHeader, IonToolbar, IonTitle, IonButton, IonIcon, IonBackButton } from "@ionic/react";
 import { person, logOutOutline, arrowBackOutline } from "ionicons/icons";
 import { useHistory } from "react-router";
+import { useAuth } from "../contexts/AuthContext";
 
 interface HeaderProps {
     bg?: string;
@@ -13,6 +14,12 @@ interface HeaderProps {
 
 const Header: React.FC<HeaderProps> = ({bg, color, button, title, backButton}) => {
     const history = useHistory();
+    const {logout} = useAuth();
+
+    const handleLogout = () => {
+        logout();
+        history.push("/login");
+    }
     return ( 
         <IonHeader className="ion-no-border">
                     <IonToolbar color={bg} >
@@ -29,7 +36,7 @@ const Header: React.FC<HeaderProps> = ({bg, color, button, title, backButton}) =
                                 <span style={{ fontSize: "1.2rem", fontWeight: 600, color: "#4846a6", marginLeft: 8 }}>
                                     {title ? title : "DeliveryX"}
                                 </span>
-                                <IonButton shape="round" color={button} onClick={() => history.push("/logout")}>
+                                <IonButton shape="round" color={button} onClick={handleLogout}>
                                     <IonIcon icon={logOutOutline} slot="icon-only" color={color}></IonIcon>
                                 </IonButton>
                             </div>

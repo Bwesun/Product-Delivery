@@ -87,7 +87,7 @@ router.put("/:id/assign", async (req, res) => {
       return res.status(404).json({ error: "Delivery not found" });
     }
 
-    const dispatcher = await User.findOne({ uid: dispatcherId });
+    const dispatcher = await User.findById(dispatcherId);
     if (!dispatcher || dispatcher.role !== "dispatcher") {
       return res.status(400).json({ error: "Invalid dispatcher" });
     }

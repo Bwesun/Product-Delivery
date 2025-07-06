@@ -1,17 +1,11 @@
-const API_BASE_URL = "http://localhost:3001/api";
-
-interface ApiResponse<T> {
-  data?: T;
-  message?: string;
-  error?: string;
-}
+const API_BASE_URL = "http://localhost:4000/api";
 
 class ApiService {
-  private getAuthHeaders(): HeadersInit {
-    const token = localStorage.getItem("token");
+  private getAuthHeaders(token?: string): HeadersInit {
+    const authToken = token || localStorage.getItem("firebaseToken");
     return {
       "Content-Type": "application/json",
-      ...(token && { Authorization: `Bearer ${token}` }),
+      ...(authToken && { Authorization: `Bearer ${authToken}` }),
     };
   }
 
@@ -19,54 +13,52 @@ class ApiService {
     if (!response.ok) {
       const errorData = await response
         .json()
-        .catch(() => ({ message: "Network error" }));
+        .catch(() => ({ error: "Network error" }));
       throw new Error(
-        errorData.message || `HTTP error! status: ${response.status}`,
+        errorData.error || `HTTP error! status: ${response.status}`,
       );
     }
     return response.json();
   }
 
   // Authentication
-  async login(email: string, password: string) {
-    const response = await fetch(`${API_BASE_URL}/auth/login`, {
+  async createOrUpdateProfile(
+    userData: {
+      uid: string;
+      name: string;
+      email: string;
+      role?: string;
+      phone?: string;
+      address?: string;
+      avatar?: string;
+    },
+    token: string,
+  ) {
+    const response = await fetch(`${API_BASE_URL}/auth/profile`, {
       method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ email, password }),
-    });
-    return this.handleResponse(response);
-  }
-
-  async register(userData: {
-    name: string;
-    email: string;
-    password: string;
-    role?: string;
-    phone?: string;
-    address?: string;
-  }) {
-    const response = await fetch(`${API_BASE_URL}/auth/register`, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
+      headers: this.getAuthHeaders(token),
       body: JSON.stringify(userData),
     });
     return this.handleResponse(response);
   }
 
-  async getCurrentUser() {
-    const response = await fetch(`${API_BASE_URL}/auth/me`, {
+  async getUserProfile(uid: string) {
+    const response = await fetch(`${API_BASE_URL}/auth/profile/${uid}`, {
       headers: this.getAuthHeaders(),
     });
     return this.handleResponse(response);
   }
 
-  async updateProfile(userData: {
-    name?: string;
-    phone?: string;
-    address?: string;
-    avatar?: string;
-  }) {
-    const response = await fetch(`${API_BASE_URL}/auth/profile`, {
+  async updateProfile(
+    uid: string,
+    userData: {
+      name?: string;
+      phone?: string;
+      address?: string;
+      avatar?: string;
+    },
+  ) {
+    const response = await fetch(`${API_BASE_URL}/auth/profile/${uid}`, {
       method: "PUT",
       headers: this.getAuthHeaders(),
       body: JSON.stringify(userData),

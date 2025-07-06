@@ -16,7 +16,7 @@ const Header: React.FC<HeaderProps> = ({bg, color, button, title, backButton}) =
     return ( 
         <IonHeader className="ion-no-border">
                     <IonToolbar color={bg} >
-                        <IonTitle className="ion-padding-end">
+                        <IonTitle className="ion-padding-start ion-padding-end">
                             <div className="flex items-center justify-between">
                                 <div>
                                     {backButton && <IonButton slot="start" onClick={() => history.goBack()} color={button} fill="clear">

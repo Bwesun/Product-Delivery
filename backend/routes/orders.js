@@ -128,6 +128,14 @@ router.delete("/:id", async (req, res) => {
       return res.status(404).json({ error: "Order not found" });
     }
 
+    // Check if user owns this order (unless admin)
+    if (
+      req.user.role !== "admin" &&
+      order.customerId.toString() !== req.user.userId
+    ) {
+      return res.status(403).json({ error: "Access denied" });
+    }
+
     if (order.status === "Delivered") {
       return res.status(400).json({ error: "Cannot cancel delivered order" });
     }

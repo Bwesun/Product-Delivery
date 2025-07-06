@@ -198,45 +198,19 @@ class ApiService {
     return this.handleResponse(response);
   }
 
-  async getAnalyticsCharts(period: string = "7d") {
+  async getAnalyticsData(period: string = "7d") {
     const response = await fetch(
-      `${API_BASE_URL}/admin/analytics/charts?period=${period}`,
+      `${API_BASE_URL}/admin/analytics?period=${period}`,
       {
         headers: this.getAuthHeaders(),
       },
     );
-    return this.handleResponse(response);
-  }
-
-  async getRecentActivities(limit: number = 20) {
-    const response = await fetch(
-      `${API_BASE_URL}/admin/activities/recent?limit=${limit}`,
-      {
-        headers: this.getAuthHeaders(),
-      },
-    );
-    return this.handleResponse(response);
-  }
-
-  async getPerformanceMetrics() {
-    const response = await fetch(`${API_BASE_URL}/admin/performance/metrics`, {
-      headers: this.getAuthHeaders(),
-    });
-    return this.handleResponse(response);
-  }
-
-  async getAlerts() {
-    const response = await fetch(`${API_BASE_URL}/admin/alerts`, {
-      headers: this.getAuthHeaders(),
-    });
     return this.handleResponse(response);
   }
 
   // User management (admin only)
   async getUsers(params?: {
     role?: string;
-    page?: number;
-    limit?: number;
     search?: string;
     isActive?: boolean;
   }) {
@@ -249,14 +223,14 @@ class ApiService {
       });
     }
 
-    const response = await fetch(`${API_BASE_URL}/users?${queryParams}`, {
+    const response = await fetch(`${API_BASE_URL}/admin/users?${queryParams}`, {
       headers: this.getAuthHeaders(),
     });
     return this.handleResponse(response);
   }
 
-  async updateUser(userId: string, userData: any) {
-    const response = await fetch(`${API_BASE_URL}/users/${userId}`, {
+  async updateUser(uid: string, userData: any) {
+    const response = await fetch(`${API_BASE_URL}/admin/users/${uid}`, {
       method: "PUT",
       headers: this.getAuthHeaders(),
       body: JSON.stringify(userData),
@@ -264,17 +238,8 @@ class ApiService {
     return this.handleResponse(response);
   }
 
-  async updateUserStatus(userId: string, isActive: boolean) {
-    const response = await fetch(`${API_BASE_URL}/users/${userId}/status`, {
-      method: "PUT",
-      headers: this.getAuthHeaders(),
-      body: JSON.stringify({ isActive }),
-    });
-    return this.handleResponse(response);
-  }
-
-  async deleteUser(userId: string) {
-    const response = await fetch(`${API_BASE_URL}/users/${userId}`, {
+  async deleteUser(uid: string) {
+    const response = await fetch(`${API_BASE_URL}/admin/users/${uid}`, {
       method: "DELETE",
       headers: this.getAuthHeaders(),
     });
@@ -282,21 +247,9 @@ class ApiService {
   }
 
   async getDispatchers() {
-    const response = await fetch(`${API_BASE_URL}/users/role/dispatchers`, {
+    const response = await fetch(`${API_BASE_URL}/admin/dispatchers`, {
       headers: this.getAuthHeaders(),
     });
-    return this.handleResponse(response);
-  }
-
-  async assignDelivery(deliveryId: string, dispatcherId: string) {
-    const response = await fetch(
-      `${API_BASE_URL}/deliveries/${deliveryId}/assign`,
-      {
-        method: "PUT",
-        headers: this.getAuthHeaders(),
-        body: JSON.stringify({ dispatcherId }),
-      },
-    );
     return this.handleResponse(response);
   }
 }

@@ -13,7 +13,11 @@ const orderSchema = new mongoose.Schema(
     deliveryAddress: { type: String, required: true },
     deliveryPhone: { type: String, required: true },
     details: { type: String },
-    customerId: { type: String, required: true }, // Firebase UID
+    customerId: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "User",
+      required: true,
+    },
     priority: {
       type: String,
       enum: ["Low", "Medium", "High"],

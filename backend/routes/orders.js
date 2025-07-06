@@ -89,6 +89,14 @@ router.put("/:id", async (req, res) => {
       return res.status(404).json({ error: "Order not found" });
     }
 
+    // Check if user owns this order (unless admin)
+    if (
+      req.user.role !== "admin" &&
+      order.customerId.toString() !== req.user.userId
+    ) {
+      return res.status(403).json({ error: "Access denied" });
+    }
+
     // Can't edit if already in transit or delivered
     if (["In Transit", "Delivered"].includes(order.status)) {
       return res.status(400).json({ error: "Cannot edit order in progress" });

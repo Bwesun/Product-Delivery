@@ -3,7 +3,7 @@ import cors from "cors";
 import dotenv from "dotenv";
 import helmet from "helmet";
 import rateLimit from "express-rate-limit";
-import { body, validationResult } from "express-validator";
+import jwt from "jsonwebtoken";
 import mongoose from "mongoose";
 
 // Import routes
@@ -33,14 +33,17 @@ mongoose
   .then(() => console.log("Connected to MongoDB"))
   .catch((error) => console.error("Error connecting to MongoDB:", error));
 
-// Authentication middleware
+// JWT Authentication middleware
 const authenticate = async (req, res, next) => {
   const token = req.headers.authorization?.split(" ")[1];
   if (!token) {
     return res.status(401).json({ error: "Unauthorized" });
   }
   try {
-    const decodedToken = await getAdminAuth().verifyIdToken(token);
+    const decodedToken = jwt.verify(
+      token,
+      process.env.JWT_SECRET || "your-secret-key",
+    );
     req.user = decodedToken;
     next();
   } catch (error) {

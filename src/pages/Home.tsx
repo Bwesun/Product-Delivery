@@ -472,9 +472,9 @@ const Home: React.FC = () => {
             <div style={{
                 marginBottom: '5rem',
               }} 
-              className="ion-padding">
+              className="">
               <IonCardHeader>
-                <IonCardTitle style={{ color: "#4846a6", fontSize: "1.2rem" }}>
+                <IonCardTitle style={{ color: "#4846a6", marginBottom: '1rem', fontSize: "1.2rem" }}>
                   Recent{" "}
                   {user.role === "user"
                     ? "Orders"
@@ -485,32 +485,36 @@ const Home: React.FC = () => {
               </IonCardHeader>
               <IonCardContent>
                   {recentItems.map((item) => (
-                    <IonItem key={item._id} lines="none">
-                      <IonIcon
-                        icon={getStatusIcon(item.status)}
-                        slot="start"
-                        style={{ color: getStatusColor(item.status) }}
-                      />
-                      <IonLabel>
-                        <h3 style={{ color: "#4846a6", fontWeight: 600 }}>
-                          {item.product}
-                        </h3>
-                        <p style={{ color: "#666" }}>
-                          {item.customerName &&
-                            `Customer: ${item.customerName} • `}
-                          <span
-                            style={{
-                              color: getStatusColor(item.status),
-                              fontWeight: 600,
-                            }}
-                          >
-                            {item.status}
-                          </span>
-                        </p>
-                        <p style={{ color: "#999", fontSize: "0.85rem" }}>
-                          {new Date(item.createdAt).toLocaleString()}
-                        </p>
-                      </IonLabel>
+                    <IonItem className="mb-2 border-b border-b-gray-300" key={item._id} lines="none">
+                      <div className="flex justify-between items-center gap-4">
+                        <IonIcon
+                          icon={getStatusIcon(item.status)}
+                          slot="start"
+                          size="large"
+                          style={{ color: getStatusColor(item.status) }}
+                        />
+                        <IonLabel>
+                          <h3 style={{ color: "#4846a6", fontWeight: 600 }}>
+                            {item.product}
+                          </h3>
+                          <p style={{ color: "#666" }}>
+                            {item.customerName &&
+                              `Customer: ${item.customerName} • `}
+                            <span
+                              style={{
+                                color: getStatusColor(item.status),
+                                fontWeight: 500,
+                              }}
+                            >
+                              {item.status}
+                            </span>
+                          </p>
+                          <p style={{ color: "#999", fontSize: "0.85rem" }}>
+                            {new Date(item.createdAt).toLocaleString()}
+                          </p>
+                        </IonLabel>
+
+                      </div>
                     </IonItem>
                   ))}
                   

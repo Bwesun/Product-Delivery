@@ -305,7 +305,7 @@ const AdminDashboard: React.FC = () => {
       <IonGrid>
         <IonRow>
           <IonCol size="6" sizeMd="3">
-            <IonCard
+            <div
               style={{
                 background: "linear-gradient(135deg, #4846a6 0%, #3880ff 100%)",
                 color: "white",
@@ -321,7 +321,7 @@ const AdminDashboard: React.FC = () => {
                 </div>
                 <div style={{ fontSize: 14, opacity: 0.9 }}>Total Users</div>
               </IonCardContent>
-            </IonCard>
+            </div>
           </IonCol>
           <IonCol size="6" sizeMd="3">
             <IonCard
@@ -343,7 +343,7 @@ const AdminDashboard: React.FC = () => {
             </IonCard>
           </IonCol>
           <IonCol size="6" sizeMd="3">
-            <IonCard
+            <div
               style={{
                 background: "linear-gradient(135deg, #2dd55b 0%, #1bda4c 100%)",
                 color: "white",
@@ -361,10 +361,10 @@ const AdminDashboard: React.FC = () => {
                   Total Deliveries
                 </div>
               </IonCardContent>
-            </IonCard>
+            </div>
           </IonCol>
           <IonCol size="6" sizeMd="3">
-            <IonCard
+            <div
               style={{
                 background: "linear-gradient(135deg, #eb445a 0%, #dc3545 100%)",
                 color: "white",
@@ -380,59 +380,59 @@ const AdminDashboard: React.FC = () => {
                 </div>
                 <div style={{ fontSize: 14, opacity: 0.9 }}>Today's Orders</div>
               </IonCardContent>
-            </IonCard>
+            </div>
           </IonCol>
         </IonRow>
       </IonGrid>
 
       {/* Charts */}
       <IonGrid>
-        <IonRow>
+        <IonRow className="mt-6">
           <IonCol size="12" sizeMd="6">
-            <IonCard>
+            <div>
               <IonCardHeader>
-                <IonCardTitle color={"primary"}>Order Status Distribution</IonCardTitle>
+                <IonCardTitle className="font-semibold" color={"primary"}>Order Status Distribution</IonCardTitle>
               </IonCardHeader>
-              <IonCardContent>
+              <IonCardContent className="ion-padding">
                 <div style={{ height: 250 }}>
                   <Doughnut data={ordersChartData} options={chartOptions} />
                 </div>
               </IonCardContent>
-            </IonCard>
+            </div>
           </IonCol>
           <IonCol size="12" sizeMd="6">
-            <IonCard>
+            <div>
               <IonCardHeader>
-                <IonCardTitle color={"primary"}>Delivery Status Distribution</IonCardTitle>
+                <IonCardTitle className="font-semibold" color={"primary"}>Delivery Status Distribution</IonCardTitle>
               </IonCardHeader>
               <IonCardContent>
                 <div style={{ height: 250 }}>
                   <Doughnut data={deliveriesChartData} options={chartOptions} />
                 </div>
               </IonCardContent>
-            </IonCard>
+            </div>
           </IonCol>
         </IonRow>
         <IonRow>
           <IonCol size="12">
-            <IonCard>
+            <div>
               <IonCardHeader>
-                <IonCardTitle>Users by Role</IonCardTitle>
+                <IonCardTitle className="text-center font-semibold" color={"primary"}>Users by Role</IonCardTitle>
               </IonCardHeader>
               <IonCardContent>
                 <div style={{ height: 300 }}>
                   <Bar data={userRolesChartData} options={chartOptions} />
                 </div>
               </IonCardContent>
-            </IonCard>
+            </div>
           </IonCol>
         </IonRow>
       </IonGrid>
 
       {/* Recent Activities */}
-      <IonCard>
+      <div className="mb-12">
         <IonCardHeader>
-          <IonCardTitle>Recent Activities</IonCardTitle>
+          <IonCardTitle color={"primary"}>Recent Activities</IonCardTitle>
         </IonCardHeader>
         <IonCardContent>
           <IonText color="medium">
@@ -441,7 +441,7 @@ const AdminDashboard: React.FC = () => {
             </p>
           </IonText>
         </IonCardContent>
-      </IonCard>
+      </div>
     </div>
   );
 

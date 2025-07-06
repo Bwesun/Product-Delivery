@@ -64,5 +64,4 @@ app.use("/api/deliveries", authenticate, deliveryRoutes);
 app.use("/api/admin", authenticate, adminRoutes);
 
 // Start the server
-const PORT = process.env.PORT || 3001;
-app.listen(PORT, () => console.log(`Listening on Port ${PORT}`));
+app.listen(4000, () => console.log("Listening on Port 4000"));

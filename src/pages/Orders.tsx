@@ -1,11 +1,7 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import {
   IonPage,
   IonContent,
-  IonHeader,
-  IonToolbar,
-  IonTitle,
-  IonList,
   IonItem,
   IonLabel,
   IonIcon,
@@ -17,148 +13,196 @@ import {
   IonSelectOption,
   IonText,
   IonSearchbar,
-  IonMenu
+  IonLoading,
+  IonToast,
+  IonRefresher,
+  IonRefresherContent,
 } from "@ionic/react";
-import { cubeOutline, addCircleOutline, closeOutline, timeOutline, checkmarkCircleOutline, ellipsisHorizontalCircleOutline } from "ionicons/icons";
+import {
+  cubeOutline,
+  addCircleOutline,
+  closeOutline,
+  timeOutline,
+  checkmarkCircleOutline,
+  ellipsisHorizontalCircleOutline,
+} from "ionicons/icons";
 import { callOutline as callIcon } from "ionicons/icons";
 
 import Header from "../components/Header";
+import { apiService } from "../services/api";
 
-type Delivery = {
-  id: number;
+type Order = {
+  _id: string;
   product: string;
   status: string;
-  date: string;
-  details: string;
   pickupAddress: string;
   pickupPhone: string;
   deliveryAddress: string;
   deliveryPhone: string;
+  details?: string;
+  priority: string;
+  createdAt: string;
+  deliveryId?: any;
 };
-
-const initialOrders: Delivery[] = [
-  {
-    id: 1,
-    product: "Bluetooth Speaker",
-    status: "In Transit",
-    date: "2025-07-02",
-    details: "Handle with care.",
-    pickupAddress: "123 Main St, Lagos",
-    pickupPhone: "+2348012345678",
-    deliveryAddress: "456 Market Rd, Abuja",
-    deliveryPhone: "+2348098765432"
-  },
-  {
-    id: 2,
-    product: "Laptop",
-    status: "Delivered",
-    date: "2025-06-30",
-    details: "Deliver before noon.",
-    pickupAddress: "Tech Plaza, Ikeja",
-    pickupPhone: "+2348023456789",
-    deliveryAddress: "University Rd, Ibadan",
-    deliveryPhone: "+2348087654321"
-  },
-  {
-    id: 3,
-    product: "Books",
-    status: "Pending",
-    date: "2025-07-03",
-    details: "Fragile items.",
-    pickupAddress: "Bookshop Ave, Enugu",
-    pickupPhone: "+2348034567890",
-    deliveryAddress: "Library Lane, Port Harcourt",
-    deliveryPhone: "+2348076543210"
-  }
-];
-// ...existing
 
 const statusColors: Record<string, string> = {
   "In Transit": "#ffc409",
-  "Delivered": "#2dd55b",
-  "Pending": "#4846a6"
+  Delivered: "#2dd55b",
+  Pending: "#4846a6",
+  Confirmed: "#3880ff",
+  Cancelled: "#eb445a",
 };
 
 const statusIcons: Record<string, string> = {
   "In Transit": timeOutline,
-  "Delivered": checkmarkCircleOutline,
-  "Pending": ellipsisHorizontalCircleOutline
+  Delivered: checkmarkCircleOutline,
+  Pending: ellipsisHorizontalCircleOutline,
+  Confirmed: checkmarkCircleOutline,
+  Cancelled: closeOutline,
 };
 
-const statusOptions = ["All", "Pending", "In Transit", "Delivered"];
+const statusOptions = [
+  "All",
+  "Pending",
+  "Confirmed",
+  "In Transit",
+  "Delivered",
+  "Cancelled",
+];
 
 const Orders: React.FC = () => {
-  const [deliveries, setDeliveries] = useState(initialOrders);
+  const [orders, setOrders] = useState<Order[]>([]);
+  const [loading, setLoading] = useState(true);
   const [showModal, setShowModal] = useState(false);
+  const [showDetailsModal, setShowDetailsModal] = useState(false);
+  const [selectedOrder, setSelectedOrder] = useState<Order | null>(null);
+  const [showToast, setShowToast] = useState(false);
+  const [toastMessage, setToastMessage] = useState("");
   const [form, setForm] = useState({
     product: "",
-    status: "Pending",
-    details: "",
     pickupAddress: "",
     pickupPhone: "",
     deliveryAddress: "",
-    deliveryPhone: ""
+    deliveryPhone: "",
+    details: "",
+    priority: "Medium",
   });
   const [formError, setFormError] = useState("");
   const [searchText, setSearchText] = useState("");
   const [filterStatus, setFilterStatus] = useState("All");
-  const [selectedOrder, setSelectedOrder] = useState<any | null>(null);
-  const [showDetailsModal, setShowDetailsModal] = useState(false);
 
-  const handleInput = (e: any) => {
-  const target = e.target as HTMLInputElement & { name?: string };
-  const name = target.name;
-  const value = e.detail?.value ?? target.value;
-  setForm((prev) => ({ ...prev, [name]: value }));
-  setFormError("");
-};
+  useEffect(() => {
+    loadOrders();
+  }, []);
 
-  const handleAddDelivery = (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!form.product.trim()) {
-      setFormError("Product name is required.");
-      return;
+  const loadOrders = async () => {
+    try {
+      setLoading(true);
+      const response = await apiService.getOrders({
+        status: filterStatus !== "All" ? filterStatus : undefined,
+        search: searchText || undefined,
+      });
+      setOrders(response.orders || []);
+    } catch (error: any) {
+      setToastMessage(error.message || "Failed to load orders");
+      setShowToast(true);
+    } finally {
+      setLoading(false);
     }
-    setDeliveries([
-      {
-        id: deliveries.length + 1,
-        product: form.product,
-        status: form.status,
-        date: new Date().toISOString().slice(0, 10),
-        details: form.details,
-        pickupAddress: form.pickupAddress,
-        pickupPhone: form.pickupPhone,
-        deliveryAddress: form.deliveryAddress,
-        deliveryPhone: form.deliveryPhone
-      },
-      ...deliveries
-    ]);
-    setShowModal(false);
+  };
+
+  const handleRefresh = async (event: CustomEvent) => {
+    await loadOrders();
+    event.detail.complete();
+  };
+
+  const handleInput = (field: string, value: string) => {
+    setForm((prev) => ({ ...prev, [field]: value }));
+    setFormError("");
+  };
+
+  const resetForm = () => {
     setForm({
       product: "",
-      status: "Pending",
-      details: "",
       pickupAddress: "",
       pickupPhone: "",
       deliveryAddress: "",
-      deliveryPhone: ""
+      deliveryPhone: "",
+      details: "",
+      priority: "Medium",
     });
     setFormError("");
   };
 
-  // Filter and search logic
-  const filteredDeliveries = deliveries.filter((delivery) => {
-    const matchesStatus = filterStatus === "All" || delivery.status === filterStatus;
+  const handleCreateOrder = async () => {
+    if (
+      !form.product.trim() ||
+      !form.pickupAddress.trim() ||
+      !form.deliveryAddress.trim()
+    ) {
+      setFormError("Please fill in all required fields");
+      return;
+    }
+
+    try {
+      setLoading(true);
+      await apiService.createOrder(form);
+      setShowModal(false);
+      resetForm();
+      await loadOrders();
+      setToastMessage("Order created successfully!");
+      setShowToast(true);
+    } catch (error: any) {
+      setFormError(error.message || "Failed to create order");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleCancelOrder = async (orderId: string) => {
+    try {
+      setLoading(true);
+      await apiService.cancelOrder(orderId);
+      setShowDetailsModal(false);
+      await loadOrders();
+      setToastMessage("Order cancelled successfully");
+      setShowToast(true);
+    } catch (error: any) {
+      setToastMessage(error.message || "Failed to cancel order");
+      setShowToast(true);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // Filter orders based on search and status
+  const filteredOrders = orders.filter((order) => {
+    const matchesStatus =
+      filterStatus === "All" || order.status === filterStatus;
     const matchesSearch =
-      delivery.product.toLowerCase().includes(searchText.toLowerCase()) ||
-      delivery.status.toLowerCase().includes(searchText.toLowerCase());
+      searchText === "" ||
+      order.product.toLowerCase().includes(searchText.toLowerCase()) ||
+      order.status.toLowerCase().includes(searchText.toLowerCase()) ||
+      order.pickupAddress.toLowerCase().includes(searchText.toLowerCase()) ||
+      order.deliveryAddress.toLowerCase().includes(searchText.toLowerCase());
     return matchesStatus && matchesSearch;
   });
 
   return (
     <IonPage>
-        <Header title="Orders" bg="light" color="light" button='primary' textColor="dark" backButton={true} />
+      <Header
+        title="My Orders"
+        bg="light"
+        color="light"
+        button="primary"
+        textColor="dark"
+        backButton={false}
+      />
       <IonContent fullscreen className="light-bg">
+        <IonRefresher slot="fixed" onIonRefresh={handleRefresh}>
+          <IonRefresherContent></IonRefresherContent>
+        </IonRefresher>
+
         <div className="ion-padding">
           <IonButton
             expand="block"
@@ -168,32 +212,45 @@ const Orders: React.FC = () => {
               fontWeight: 700,
               background: "#ffb900",
               color: "#4846a6",
-              marginBottom: 24
+              marginBottom: 24,
             }}
             onClick={() => setShowModal(true)}
           >
             <IonIcon icon={addCircleOutline} slot="start" />
-            Add Delivery Request
+            Create New Order
           </IonButton>
 
           {/* Search and Filter */}
-          <div style={{ display: "flex", gap: 12, marginBottom: 16, flexWrap: "wrap" }}>
+          <div
+            style={{
+              display: "flex",
+              gap: 12,
+              marginBottom: 16,
+              flexWrap: "wrap",
+            }}
+          >
             <IonSearchbar
-            color={'primary'}
+              color={"primary"}
               value={searchText}
-              onIonInput={e => setSearchText(e.detail.value ?? "")}
-              placeholder="Search deliveries"
-              style={{ flex: 3, borderRadius: '1rem', minWidth: 0 }}
+              onIonInput={(e) => {
+                setSearchText(e.detail.value ?? "");
+                loadOrders();
+              }}
+              placeholder="Search orders"
+              style={{ flex: 3, borderRadius: "1rem", minWidth: 0 }}
             />
             <IonSelect
               value={filterStatus}
-              onIonChange={e => setFilterStatus(e.detail.value)}
-              style={{ flex: 1, display: 'flex' }}
+              onIonChange={(e) => {
+                setFilterStatus(e.detail.value);
+                loadOrders();
+              }}
+              style={{ flex: 1, display: "flex" }}
             >
-                <div slot="label" className="">
-                    <IonText color={'medium'}>Filter:</IonText> 
-                </div>
-              {statusOptions.map(status => (
+              <div slot="label">
+                <IonText color={"medium"}>Filter:</IonText>
+              </div>
+              {statusOptions.map((status) => (
                 <IonSelectOption key={status} value={status}>
                   {status}
                 </IonSelectOption>
@@ -201,72 +258,81 @@ const Orders: React.FC = () => {
             </IonSelect>
           </div>
 
-            {filteredDeliveries.length === 0 && (
-              <IonItem lines="none">
-                <IonLabel>
-                  <IonText color="medium">No orders found.</IonText>
-                </IonLabel>
-              </IonItem>
-            )}
-            {filteredDeliveries.map((delivery) => (
-              <IonItem
-                className="mb-4"
-                key={delivery.id}
-                button
-                onClick={() => {
-                  setSelectedOrder(delivery);
-                  setShowDetailsModal(true);
+          {filteredOrders.length === 0 && !loading && (
+            <IonItem lines="none">
+              <IonLabel>
+                <IonText color="medium">No orders found.</IonText>
+              </IonLabel>
+            </IonItem>
+          )}
+
+          {filteredOrders.map((order) => (
+            <IonItem
+              className="mb-4"
+              key={order._id}
+              button
+              onClick={() => {
+                setSelectedOrder(order);
+                setShowDetailsModal(true);
+              }}
+            >
+              <IonIcon
+                icon={cubeOutline}
+                slot="start"
+                style={{
+                  fontSize: 28,
+                  color: statusColors[order.status] || "#4846a6",
+                  marginRight: 8,
                 }}
-              >
-                <IonIcon
-                  icon={cubeOutline}
-                  slot="start"
-                  style={{
-                    fontSize: 28,
-                    color: `${delivery.status === "Pending" ? "var(--ion-color-primary)" : 
-                    delivery.status === "In Transit" ? "var(--ion-color-warning)" : "var(--ion-color-success)"}`,
-                    marginRight: 8
-                  }}
-                />
-                <IonLabel color={"primary"}>
-                  <div style={{ fontWeight: 600, color: "#4846a6" }}>{delivery.product}</div>
-                  <IonText color="medium" style={{ fontSize: 13 }}>
-                    <IonIcon
-                      icon={statusIcons[delivery.status]}
-                      style={{
-                        fontSize: 15,
-                        verticalAlign: "middle",
-                        marginRight: 4,
-                        color: statusColors[delivery.status]
-                      }}
-                    />
-                    {delivery.date} &nbsp;|&nbsp;
-                    <span style={{ color: statusColors[delivery.status], fontWeight: 600 }}>
-                      {delivery.status}
-                    </span>
-                  </IonText>
-                </IonLabel>
-              </IonItem>
-            ))}
+              />
+              <IonLabel color={"primary"}>
+                <div style={{ fontWeight: 600, color: "#4846a6" }}>
+                  {order.product}
+                </div>
+                <IonText color="medium" style={{ fontSize: 13 }}>
+                  <IonIcon
+                    icon={statusIcons[order.status]}
+                    style={{
+                      fontSize: 15,
+                      verticalAlign: "middle",
+                      marginRight: 4,
+                      color: statusColors[order.status],
+                    }}
+                  />
+                  {new Date(order.createdAt).toLocaleDateString()} &nbsp;|&nbsp;
+                  <span
+                    style={{
+                      color: statusColors[order.status],
+                      fontWeight: 600,
+                    }}
+                  >
+                    {order.status}
+                  </span>
+                </IonText>
+              </IonLabel>
+            </IonItem>
+          ))}
         </div>
-        
+
         {/* ADD DELIVERY REQUEST MODAL */}
         <IonModal isOpen={showModal} onDidDismiss={() => setShowModal(false)}>
-            <IonHeader>
-              <IonToolbar color={"primary"}>
-                <IonTitle className="ion-padding" color={"secondary"}>New Order Request</IonTitle>
-                <IonButton
-                  slot="end"
-                  fill="clear"
-                  color="light"
-                  onClick={() => setShowModal(false)}
-                >
-                  <IonIcon icon={closeOutline} />
-                </IonButton>
-              </IonToolbar>
-            </IonHeader>
-            <IonContent color={"light"}>
-          <form onSubmit={handleAddDelivery}>
+          <IonHeader>
+            <IonToolbar color={"primary"}>
+              <IonTitle className="ion-padding" color={"secondary"}>
+                New Order Request
+              </IonTitle>
+              <IonButton
+                slot="end"
+                fill="clear"
+                color="light"
+                onClick={() => setShowModal(false)}
+              >
+                <IonIcon icon={closeOutline} />
+              </IonButton>
+            </IonToolbar>
+          </IonHeader>
+          <IonContent color={"light"}>
+            <form onSubmit={handleAddDelivery}>
               <div className="ion-padding">
                 <IonInput
                   label="Product Name"
@@ -276,7 +342,7 @@ const Orders: React.FC = () => {
                   value={form.product}
                   onIonInput={handleInput}
                   required
-                  color={'primary'}
+                  color={"primary"}
                 />
                 <IonSelect
                   label="Status"
@@ -284,10 +350,16 @@ const Orders: React.FC = () => {
                   name="status"
                   value={form.status}
                   onIonChange={handleInput}
-                  style={{ marginBottom: 16, background: "#fff", borderRadius: 8 }}
+                  style={{
+                    marginBottom: 16,
+                    background: "#fff",
+                    borderRadius: 8,
+                  }}
                 >
                   <IonSelectOption value="Pending">Pending</IonSelectOption>
-                  <IonSelectOption value="In Transit">In Transit</IonSelectOption>
+                  <IonSelectOption value="In Transit">
+                    In Transit
+                  </IonSelectOption>
                   <IonSelectOption value="Delivered">Delivered</IonSelectOption>
                 </IonSelect>
                 <IonTextarea
@@ -297,7 +369,11 @@ const Orders: React.FC = () => {
                   name="details"
                   value={form.details}
                   onIonInput={handleInput}
-                  style={{ marginBottom: 16, background: "#fff", borderRadius: 8 }}
+                  style={{
+                    marginBottom: 16,
+                    background: "#fff",
+                    borderRadius: 8,
+                  }}
                 />
                 <IonInput
                   label="Pickup Address"
@@ -306,7 +382,11 @@ const Orders: React.FC = () => {
                   name="pickupAddress"
                   value={form.pickupAddress}
                   onIonInput={handleInput}
-                  style={{ marginBottom: 16, background: "#fff", borderRadius: 8 }}
+                  style={{
+                    marginBottom: 16,
+                    background: "#fff",
+                    borderRadius: 8,
+                  }}
                 />
                 <IonInput
                   label="Pickup Phone Number"
@@ -315,7 +395,11 @@ const Orders: React.FC = () => {
                   name="pickupPhone"
                   value={form.pickupPhone}
                   onIonInput={handleInput}
-                  style={{ marginBottom: 16, background: "#fff", borderRadius: 8 }}
+                  style={{
+                    marginBottom: 16,
+                    background: "#fff",
+                    borderRadius: 8,
+                  }}
                   type="tel"
                 />
                 <IonInput
@@ -325,7 +409,11 @@ const Orders: React.FC = () => {
                   name="deliveryAddress"
                   value={form.deliveryAddress}
                   onIonInput={handleInput}
-                  style={{ marginBottom: 16, background: "#fff", borderRadius: 8 }}
+                  style={{
+                    marginBottom: 16,
+                    background: "#fff",
+                    borderRadius: 8,
+                  }}
                 />
                 <IonInput
                   label="Delivery Phone Number"
@@ -334,7 +422,11 @@ const Orders: React.FC = () => {
                   name="deliveryPhone"
                   value={form.deliveryPhone}
                   onIonInput={handleInput}
-                  style={{ marginBottom: 16, background: "#fff", borderRadius: 8 }}
+                  style={{
+                    marginBottom: 16,
+                    background: "#fff",
+                    borderRadius: 8,
+                  }}
                   type="tel"
                 />
                 {formError && (
@@ -351,139 +443,211 @@ const Orders: React.FC = () => {
                     fontWeight: 700,
                     background: "#ffb900",
                     color: "#4846a6",
-                    marginTop: 12
+                    marginTop: 12,
                   }}
                 >
                   Submit Request
                 </IonButton>
               </div>
-          </form>
-            </IonContent>
+            </form>
+          </IonContent>
         </IonModal>
-        
+
         {/* ORDER DETAILS MODAL */}
-        <IonModal isOpen={showDetailsModal} onDidDismiss={() => setShowDetailsModal(false)}>
-            <IonHeader>
-                <IonToolbar color={"primary"}>
-                <IonTitle className="ion-padding" color={"secondary"}>
-                    <IonIcon icon={cubeOutline} style={{ marginRight: 8, verticalAlign: "middle" }} />
-                    Order Details
-                </IonTitle>
-                <IonButton
-                    slot="end"
-                    fill="clear"
-                    color="light"
-                    onClick={() => setShowDetailsModal(false)}
-                >
-                    <IonIcon icon={closeOutline} />
-                </IonButton>
-                </IonToolbar>
-            </IonHeader>
-            <IonContent color={"light"}>
-                <div
-                className="ion-padding"
-                style={{
-                    maxWidth: 420,
-                    margin: "24px auto",
-                    background: "#fff",
-                    borderRadius: 18,
-                    boxShadow: "0 4px 24px rgba(72,70,166,0.08)",
-                    padding: 24,
-                }}
-                >
-                {selectedOrder && (
-                    <>
-                    <div style={{ display: "flex", alignItems: "center", marginBottom: 16 }}>
-                        <IonIcon
-                        icon={cubeOutline}
+        <IonModal
+          isOpen={showDetailsModal}
+          onDidDismiss={() => setShowDetailsModal(false)}
+        >
+          <IonHeader>
+            <IonToolbar color={"primary"}>
+              <IonTitle className="ion-padding" color={"secondary"}>
+                <IonIcon
+                  icon={cubeOutline}
+                  style={{ marginRight: 8, verticalAlign: "middle" }}
+                />
+                Order Details
+              </IonTitle>
+              <IonButton
+                slot="end"
+                fill="clear"
+                color="light"
+                onClick={() => setShowDetailsModal(false)}
+              >
+                <IonIcon icon={closeOutline} />
+              </IonButton>
+            </IonToolbar>
+          </IonHeader>
+          <IonContent color={"light"}>
+            <div
+              className="ion-padding"
+              style={{
+                maxWidth: 420,
+                margin: "24px auto",
+                background: "#fff",
+                borderRadius: 18,
+                boxShadow: "0 4px 24px rgba(72,70,166,0.08)",
+                padding: 24,
+              }}
+            >
+              {selectedOrder && (
+                <>
+                  <div
+                    style={{
+                      display: "flex",
+                      alignItems: "center",
+                      marginBottom: 16,
+                    }}
+                  >
+                    <IonIcon
+                      icon={cubeOutline}
+                      style={{
+                        fontSize: 36,
+                        color: "#4846a6",
+                        marginRight: 14,
+                        background: "#f2f2fa",
+                        borderRadius: "50%",
+                        padding: 8,
+                      }}
+                    />
+                    <div>
+                      <h2
+                        style={{ color: "#4846a6", fontWeight: 700, margin: 0 }}
+                      >
+                        {selectedOrder.product}
+                      </h2>
+                      <span
                         style={{
-                            fontSize: 36,
-                            color: "#4846a6",
-                            marginRight: 14,
-                            background: "#f2f2fa",
-                            borderRadius: "50%",
-                            padding: 8,
+                          display: "inline-flex",
+                          alignItems: "center",
+                          fontWeight: 600,
+                          color: statusColors[selectedOrder.status],
+                          fontSize: 15,
+                          marginTop: 2,
                         }}
-                        />
-                        <div>
-                        <h2 style={{ color: "#4846a6", fontWeight: 700, margin: 0 }}>
-                            {selectedOrder.product}
-                        </h2>
-                        <span
-                            style={{
-                            display: "inline-flex",
-                            alignItems: "center",
-                            fontWeight: 600,
+                      >
+                        <IonIcon
+                          icon={statusIcons[selectedOrder.status]}
+                          style={{
+                            fontSize: 18,
+                            verticalAlign: "middle",
+                            marginRight: 4,
                             color: statusColors[selectedOrder.status],
-                            fontSize: 15,
-                            marginTop: 2,
-                            }}
-                        >
-                            <IonIcon
-                            icon={statusIcons[selectedOrder.status]}
-                            style={{
-                                fontSize: 18,
-                                verticalAlign: "middle",
-                                marginRight: 4,
-                                color: statusColors[selectedOrder.status],
-                            }}
-                            />
-                            {selectedOrder.status}
+                          }}
+                        />
+                        {selectedOrder.status}
+                      </span>
+                    </div>
+                  </div>
+                  <div
+                    style={{
+                      borderTop: "1px solid #ececf6",
+                      paddingTop: 16,
+                      marginTop: 8,
+                      fontSize: 15,
+                      color: "#4846a6",
+                    }}
+                  >
+                    <div
+                      style={{
+                        display: "flex",
+                        alignItems: "center",
+                        marginBottom: 10,
+                      }}
+                    >
+                      <IonIcon
+                        icon={timeOutline}
+                        style={{ marginRight: 8, color: "#4846a6" }}
+                      />
+                      <span>
+                        <strong>Date:</strong> {selectedOrder.date}
+                      </span>
+                    </div>
+                    {selectedOrder.details && (
+                      <div
+                        style={{
+                          display: "flex",
+                          alignItems: "center",
+                          marginBottom: 10,
+                        }}
+                      >
+                        <IonIcon
+                          icon={ellipsisHorizontalCircleOutline}
+                          style={{ marginRight: 8, color: "#4846a6" }}
+                        />
+                        <span>
+                          <strong>Details:</strong> {selectedOrder.details}
                         </span>
-                        </div>
+                      </div>
+                    )}
+                    <div
+                      style={{
+                        display: "flex",
+                        alignItems: "center",
+                        marginBottom: 10,
+                      }}
+                    >
+                      <IonIcon
+                        icon={cubeOutline}
+                        style={{ marginRight: 8, color: "#4846a6" }}
+                      />
+                      <span>
+                        <strong>Pickup Address:</strong>{" "}
+                        {selectedOrder.pickupAddress}
+                      </span>
                     </div>
                     <div
-                        style={{
-                        borderTop: "1px solid #ececf6",
-                        paddingTop: 16,
-                        marginTop: 8,
-                        fontSize: 15,
-                        color: "#4846a6",
-                        }}
+                      style={{
+                        display: "flex",
+                        alignItems: "center",
+                        marginBottom: 10,
+                      }}
                     >
-                        <div style={{ display: "flex", alignItems: "center", marginBottom: 10 }}>
-                        <IonIcon icon={timeOutline} style={{ marginRight: 8, color: "#4846a6" }} />
-                        <span>
-                            <strong>Date:</strong> {selectedOrder.date}
-                        </span>
-                        </div>
-                        {selectedOrder.details && (
-                        <div style={{ display: "flex", alignItems: "center", marginBottom: 10 }}>
-                            <IonIcon icon={ellipsisHorizontalCircleOutline} style={{ marginRight: 8, color: "#4846a6" }} />
-                            <span>
-                            <strong>Details:</strong> {selectedOrder.details}
-                            </span>
-                        </div>
-                        )}
-                        <div style={{ display: "flex", alignItems: "center", marginBottom: 10 }}>
-                        <IonIcon icon={cubeOutline} style={{ marginRight: 8, color: "#4846a6" }} />
-                        <span>
-                            <strong>Pickup Address:</strong> {selectedOrder.pickupAddress}
-                        </span>
-                        </div>
-                        <div style={{ display: "flex", alignItems: "center", marginBottom: 10 }}>
-                        <IonIcon icon={callIcon} style={{ marginRight: 8, color: "#4846a6" }} />
-                        <span>
-                            <strong>Pickup Phone:</strong> {selectedOrder.pickupPhone}
-                        </span>
-                        </div>
-                        <div style={{ display: "flex", alignItems: "center", marginBottom: 10 }}>
-                        <IonIcon icon={cubeOutline} style={{ marginRight: 8, color: "#4846a6" }} />
-                        <span>
-                            <strong>Delivery Address:</strong> {selectedOrder.deliveryAddress}
-                        </span>
-                        </div>
-                        <div style={{ display: "flex", alignItems: "center", marginBottom: 10 }}>
-                        <IonIcon icon={callIcon} style={{ marginRight: 8, color: "#4846a6" }} />
-                        <span>
-                            <strong>Delivery Phone:</strong> {selectedOrder.deliveryPhone}
-                        </span>
-                        </div>
+                      <IonIcon
+                        icon={callIcon}
+                        style={{ marginRight: 8, color: "#4846a6" }}
+                      />
+                      <span>
+                        <strong>Pickup Phone:</strong>{" "}
+                        {selectedOrder.pickupPhone}
+                      </span>
                     </div>
-                    </>
-                )}
-                </div>
-            </IonContent>
+                    <div
+                      style={{
+                        display: "flex",
+                        alignItems: "center",
+                        marginBottom: 10,
+                      }}
+                    >
+                      <IonIcon
+                        icon={cubeOutline}
+                        style={{ marginRight: 8, color: "#4846a6" }}
+                      />
+                      <span>
+                        <strong>Delivery Address:</strong>{" "}
+                        {selectedOrder.deliveryAddress}
+                      </span>
+                    </div>
+                    <div
+                      style={{
+                        display: "flex",
+                        alignItems: "center",
+                        marginBottom: 10,
+                      }}
+                    >
+                      <IonIcon
+                        icon={callIcon}
+                        style={{ marginRight: 8, color: "#4846a6" }}
+                      />
+                      <span>
+                        <strong>Delivery Phone:</strong>{" "}
+                        {selectedOrder.deliveryPhone}
+                      </span>
+                    </div>
+                  </div>
+                </>
+              )}
+            </div>
+          </IonContent>
         </IonModal>
       </IonContent>
     </IonPage>

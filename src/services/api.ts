@@ -221,8 +221,8 @@ class ApiService {
     return this.handleResponse(response);
   }
 
-  async updateUser(uid: string, userData: any) {
-    const response = await fetch(`${API_BASE_URL}/admin/users/${uid}`, {
+  async updateUser(userId: string, userData: any) {
+    const response = await fetch(`${API_BASE_URL}/admin/users/${userId}`, {
       method: "PUT",
       headers: this.getAuthHeaders(),
       body: JSON.stringify(userData),
@@ -230,8 +230,8 @@ class ApiService {
     return this.handleResponse(response);
   }
 
-  async deleteUser(uid: string) {
-    const response = await fetch(`${API_BASE_URL}/admin/users/${uid}`, {
+  async deleteUser(userId: string) {
+    const response = await fetch(`${API_BASE_URL}/admin/users/${userId}`, {
       method: "DELETE",
       headers: this.getAuthHeaders(),
     });

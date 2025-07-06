@@ -1,11 +1,11 @@
 const API_BASE_URL = "http://localhost:4000/api";
 
 class ApiService {
-  private getAuthHeaders(token?: string): HeadersInit {
-    const authToken = token || localStorage.getItem("firebaseToken");
+  private getAuthHeaders(): HeadersInit {
+    const token = localStorage.getItem("token");
     return {
       "Content-Type": "application/json",
-      ...(authToken && { Authorization: `Bearer ${authToken}` }),
+      ...(token && { Authorization: `Bearer ${token}` }),
     };
   }
 
@@ -22,43 +22,45 @@ class ApiService {
   }
 
   // Authentication
-  async createOrUpdateProfile(
-    userData: {
-      uid: string;
-      name: string;
-      email: string;
-      role?: string;
-      phone?: string;
-      address?: string;
-      avatar?: string;
-    },
-    token: string,
-  ) {
-    const response = await fetch(`${API_BASE_URL}/auth/profile`, {
+  async login(email: string, password: string) {
+    const response = await fetch(`${API_BASE_URL}/auth/login`, {
       method: "POST",
-      headers: this.getAuthHeaders(token),
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ email, password }),
+    });
+    return this.handleResponse(response);
+  }
+
+  async register(userData: {
+    name: string;
+    email: string;
+    password: string;
+    role?: string;
+    phone?: string;
+    address?: string;
+  }) {
+    const response = await fetch(`${API_BASE_URL}/auth/register`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
       body: JSON.stringify(userData),
     });
     return this.handleResponse(response);
   }
 
-  async getUserProfile(uid: string) {
-    const response = await fetch(`${API_BASE_URL}/auth/profile/${uid}`, {
+  async getCurrentUser() {
+    const response = await fetch(`${API_BASE_URL}/auth/me`, {
       headers: this.getAuthHeaders(),
     });
     return this.handleResponse(response);
   }
 
-  async updateProfile(
-    uid: string,
-    userData: {
-      name?: string;
-      phone?: string;
-      address?: string;
-      avatar?: string;
-    },
-  ) {
-    const response = await fetch(`${API_BASE_URL}/auth/profile/${uid}`, {
+  async updateProfile(userData: {
+    name?: string;
+    phone?: string;
+    address?: string;
+    avatar?: string;
+  }) {
+    const response = await fetch(`${API_BASE_URL}/auth/profile`, {
       method: "PUT",
       headers: this.getAuthHeaders(),
       body: JSON.stringify(userData),

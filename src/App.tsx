@@ -56,7 +56,7 @@ const AppContent: React.FC = () => {
   useEffect(() => {
     const setStatusBar = async () => {
       try {
-        await StatusBar.setBackgroundColor({ color: "#2563eb" });
+        await StatusBar.setBackgroundColor({ color: "#4846a6" });
         await StatusBar.setOverlaysWebView({ overlay: false });
         await StatusBar.setStyle({ style: Style.Default });
       } catch (error) {

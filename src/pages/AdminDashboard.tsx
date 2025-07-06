@@ -391,7 +391,7 @@ const AdminDashboard: React.FC = () => {
           <IonCol size="12" sizeMd="6">
             <IonCard>
               <IonCardHeader>
-                <IonCardTitle>Order Status Distribution</IonCardTitle>
+                <IonCardTitle color={"primary"}>Order Status Distribution</IonCardTitle>
               </IonCardHeader>
               <IonCardContent>
                 <div style={{ height: 250 }}>
@@ -403,7 +403,7 @@ const AdminDashboard: React.FC = () => {
           <IonCol size="12" sizeMd="6">
             <IonCard>
               <IonCardHeader>
-                <IonCardTitle>Delivery Status Distribution</IonCardTitle>
+                <IonCardTitle color={"primary"}>Delivery Status Distribution</IonCardTitle>
               </IonCardHeader>
               <IonCardContent>
                 <div style={{ height: 250 }}>

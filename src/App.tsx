@@ -47,6 +47,7 @@ import { Logs, Package } from "lucide-react";
 import { StatusBar, Style } from "@capacitor/status-bar";
 import { useEffect } from "react";
 import { AuthProvider, useAuth } from "./contexts/AuthContext";
+import NetworkCheck from "./components/NetworkCheck";
 
 setupIonicReact();
 
@@ -76,6 +77,7 @@ const AppContent: React.FC = () => {
             justifyContent: "center",
             alignItems: "center",
             height: "100vh",
+            backgroundColor: '#ffffff'
           }}
         >
           <IonSpinner color={"primary"} name="crescent" />
@@ -88,6 +90,7 @@ const AppContent: React.FC = () => {
     return (
       <IonApp>
         <IonReactRouter>
+          <NetworkCheck />
           <IonRouterOutlet>
             <Switch>
               <Route exact path="/login" component={Login} />

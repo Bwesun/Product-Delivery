@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useState } from "react";
 import { Network } from "@capacitor/network";
 import { IonAlert } from "@ionic/react";
 import { useHistory } from "react-router-dom";
@@ -8,15 +8,15 @@ const NetworkCheck: React.FC = () => {
     const history = useHistory();
 
     // NETWORK STATE CHANGE LISTENER
-    const networkListener = Network.addListener('networkStatusChange', status => {
-        console.log('Network status changed', status.connected);
-
-        if (status.connected === false) {
-                setIsAlertOpen(true)
-            } else {
-                setIsAlertOpen(false)
-            }
-        });
+    const netstat = Network.addListener('networkStatusChange', status => {
+        const stato = status.connected;
+        console.log('Network status changed', stato);
+        if (stato == false) {
+            setIsAlertOpen(true)
+          } else {
+            setIsAlertOpen(false)
+          }
+      });
     
     return ( 
         <IonAlert

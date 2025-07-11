@@ -18,6 +18,8 @@ import {
   IonInput,
   IonLoading,
   IonToast,
+  IonHeader,
+  IonToolbar,
 } from "@ionic/react";
 import {
   pencilOutline,
@@ -361,21 +363,26 @@ const Profile: React.FC = () => {
           isOpen={showEditModal}
           onDidDismiss={() => setShowEditModal(false)}
         >
-          <div style={{ padding: 20 }}>
-            <div
-              style={{
-                display: "flex",
-                justifyContent: "space-between",
-                alignItems: "center",
-                marginBottom: 20,
-              }}
-            >
-              <h2 style={{ margin: 0, color: "#4846a6" }}>Edit Profile</h2>
-              <IonButton fill="clear" onClick={() => setShowEditModal(false)}>
-                <IonIcon icon={closeOutline} />
-              </IonButton>
-            </div>
+            <IonHeader>
+              <IonToolbar color={'primary'}>
+                <div
+                  style={{
+                    display: "flex",
+                    justifyContent: "space-between",
+                    alignItems: "center",
+                  }}
+                >
+                  <IonText className="ion-padding-start" color={"light"}>
+                    <h2>Edit Profile</h2>
+                  </IonText>
+                  <IonButton fill="clear" onClick={() => setShowEditModal(false)}>
+                    <IonIcon color="light" icon={closeOutline} />
+                  </IonButton>
+                </div>
+              </IonToolbar>
+            </IonHeader>
 
+          <IonContent className="light-bg ion-padding">
             <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
               <IonInput
                 label="Name"
@@ -449,7 +456,7 @@ const Profile: React.FC = () => {
                 </IonButton>
               </div>
             </div>
-          </div>
+          </IonContent>
         </IonModal>
 
         <IonLoading isOpen={loading} message="Please wait..." />

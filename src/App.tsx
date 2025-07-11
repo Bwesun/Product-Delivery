@@ -48,12 +48,14 @@ import { StatusBar, Style } from "@capacitor/status-bar";
 import { useEffect } from "react";
 import { AuthProvider, useAuth } from "./contexts/AuthContext";
 import NetworkCheck from "./components/NetworkCheck";
+import Loader from "./components/Loader";
 
 setupIonicReact();
 
 const AppContent: React.FC = () => {
   const { user, isLoading, isAuthenticated } = useAuth();
 
+  // SET STATUS BAR
   useEffect(() => {
     const setStatusBar = async () => {
       try {
@@ -68,6 +70,10 @@ const AppContent: React.FC = () => {
     setStatusBar();
   }, []);
 
+
+  // NETWORK STATUS CHECK
+  
+
   if (isLoading) {
     return (
       <IonApp>
@@ -80,7 +86,7 @@ const AppContent: React.FC = () => {
             backgroundColor: '#ffffff'
           }}
         >
-          <IonSpinner color={"primary"} name="crescent" />
+          <Loader />
         </div>
       </IonApp>
     );
@@ -112,6 +118,7 @@ const AppContent: React.FC = () => {
     <IonApp>
       <IonReactRouter>
         <IonTabs>
+        <NetworkCheck />
           <IonRouterOutlet>
             <Switch>
               <Route exact path="/home" component={Home} />

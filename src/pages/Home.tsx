@@ -33,6 +33,8 @@ import { useHistory } from "react-router-dom";
 import Header from "../components/Header";
 import { useAuth } from "../contexts/AuthContext";
 import { apiService } from "../services/api";
+import NetworkCheck from "../components/NetworkCheck";
+import Loader from "../components/Loader";
 
 interface OrdersResponse {
   orders: RecentItem[]; // or `Order[]` if you use a different shape

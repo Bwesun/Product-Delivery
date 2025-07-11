@@ -1,5 +1,7 @@
+@import url('https://fonts.googleapis.com/css2?family=Bangers&family=Winky+Rough:ital,wght@0,300..900;1,300..900&display=swap');
 
 :root {
+	--ion-font-family: 'Winky Rough', sans-serif;
     margin: 0;
     padding: 0;
 	--ion-color-primary:#4846a6;

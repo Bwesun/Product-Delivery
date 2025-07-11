@@ -48,7 +48,6 @@ import { StatusBar, Style } from "@capacitor/status-bar";
 import { useEffect } from "react";
 import { AuthProvider, useAuth } from "./contexts/AuthContext";
 import NetworkCheck from "./components/NetworkCheck";
-import Loader from "./components/Loader";
 
 setupIonicReact();
 
@@ -86,7 +85,7 @@ const AppContent: React.FC = () => {
             backgroundColor: '#ffffff'
           }}
         >
-          <Loader />
+          <IonSpinner color={"primary"} name="crescent" />
         </div>
       </IonApp>
     );

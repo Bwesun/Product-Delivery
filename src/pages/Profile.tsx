@@ -372,11 +372,11 @@ const Profile: React.FC = () => {
                     alignItems: "center",
                   }}
                 >
-                  <IonText className="ion-padding-start" color={"light"}>
+                  <IonText className="ion-padding-start" color={"secondary"}>
                     <h2>Edit Profile</h2>
                   </IonText>
                   <IonButton fill="clear" onClick={() => setShowEditModal(false)}>
-                    <IonIcon color="light" icon={closeOutline} />
+                    <IonIcon color="secondary" icon={closeOutline} />
                   </IonButton>
                 </div>
               </IonToolbar>

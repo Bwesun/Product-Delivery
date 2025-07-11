@@ -16,6 +16,9 @@ import {
   IonRefresherContent,
   IonButton,
   IonTextarea,
+  IonHeader,
+  IonToolbar,
+  IonTitle,
 } from "@ionic/react";
 import {
   cubeOutline,
@@ -281,38 +284,45 @@ const Deliveries: React.FC = () => {
           isOpen={showDetailsModal}
           onDidDismiss={() => setShowDetailsModal(false)}
         >
-          <div style={{ padding: 20 }}>
-            <div
-              style={{
-                display: "flex",
-                justifyContent: "space-between",
-                alignItems: "center",
-                marginBottom: 20,
-              }}
-            >
-              <h2 style={{ margin: 0, color: "#4846a6" }}>Delivery Details</h2>
+          <IonHeader>
+            <IonToolbar color={"primary"}>
+              <div
+                style={{
+                  display: "flex",
+                  justifyContent: "space-between",
+                  alignItems: "center",
+                }}
+              >
+                <IonTitle color={"secondary"} className="ion-padding-start">
+                <h2>Delivery Details</h2>
+              </IonTitle>
               <IonButton
                 fill="clear"
                 onClick={() => setShowDetailsModal(false)}
               >
-                <IonIcon icon={closeOutline} />
+                <IonIcon color="secondary" icon={closeOutline} />
               </IonButton>
-            </div>
-
+              </div>
+              
+            </IonToolbar>
+          </IonHeader>
+          <IonContent className="ion-padding light-bg">
             {selectedDelivery && (
               <div
                 style={{ display: "flex", flexDirection: "column", gap: 16 }}
               >
                 <div
                   style={{
-                    background: "#f8f9fa",
                     padding: 16,
                     borderRadius: 8,
+                    border: "1px solid var(--ion-color-primary-tint)",
                   }}
                 >
-                  <h3 style={{ margin: "0 0 10px 0", color: "#4846a6" }}>
+                  <IonText color={"primary"}>
+                    <h3 style={{ margin: "0 0 10px 0"}}>
                     {selectedDelivery.product}
                   </h3>
+                  </IonText>
                   <div
                     style={{
                       display: "flex",
@@ -335,14 +345,14 @@ const Deliveries: React.FC = () => {
                     </span>
                   </div>
                   {selectedDelivery.trackingNumber && (
-                    <div style={{ fontSize: 14, color: "#666" }}>
+                    <div style={{ fontSize: 14, color: "var(--ion-color-primary)" }}>
                       Tracking: {selectedDelivery.trackingNumber}
                     </div>
                   )}
                 </div>
 
                 <div
-                  style={{ display: "flex", flexDirection: "column", gap: 12 }}
+                  style={{ display: "flex", flexDirection: "column", gap: 12, color: "var(--ion-color-medium)" }}
                 >
                   <div>
                     <strong>Customer:</strong> {selectedDelivery.customerName}
@@ -444,7 +454,7 @@ const Deliveries: React.FC = () => {
                 </div>
               </div>
             )}
-          </div>
+          </IonContent>
         </IonModal>
 
         <IonLoading isOpen={loading} message="Please wait..." />
